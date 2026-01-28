@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>German Flashcards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+            font-weight: 300;
+        }
+
+        .progress {
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 400px;
+            height: 250px;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s ease;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            transform: rotateY(180deg);
+        }
+
+        .card-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+
+        .card-word {
+            font-size: 1.8rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .card-hint {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-top: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-next {
+            background: white;
+            color: #1a1a2e;
+        }
+
+        .btn-shuffle {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-knew-it {
+            background: #38ef7d;
+            color: #1a1a2e;
+        }
+
+        .btn-didnt-know {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .score {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            opacity: 0.5;
+            text-align: center;
+        }
+
+        @media (max-width: 500px) {
+            .card-word {
+                font-size: 1.4rem;
+            }
+
+            .card-container {
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>German Flashcards</h1>
+    <p class="progress">Card <span id="current">1</span> of <span id="total">0</span></p>
+
+    <div class="card-container" onclick="flipCard()">
+        <div class="card" id="card">
+            <div class="card-face card-front">
+                <div class="card-label">German</div>
+                <div class="card-word" id="german-word"></div>
+                <div class="card-hint">tap to flip</div>
+            </div>
+            <div class="card-face card-back">
+                <div class="card-label">English</div>
+                <div class="card-word" id="english-word"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn-didnt-know" onclick="markAndNext(false)">Didn't Know</button>
+        <button class="btn-knew-it" onclick="markAndNext(true)">Knew It</button>
+    </div>
+
+    <div class="controls" style="margin-top: 15px;">
+        <button class="btn-shuffle" onclick="shuffleCards()">Shuffle</button>
+        <button class="btn-next" onclick="nextCard()">Skip</button>
+    </div>
+
+    <p class="score">Score: <span id="correct">0</span> / <span id="attempted">0</span></p>
+    <p class="instructions">Press spacebar to flip, arrow keys to navigate</p>
+
+    <script>
+        const flashcards = [
+            { german: "Die Stimme", english: "the voice" },
+            { german: "Erkennen", english: "to recognise" },
+            { german: "Der Schriftsteller", english: "the writer" },
+            { german: "mindestens", english: "at least / minimum" },
+            { german: "Der Brief", english: "the letter" },
+            { german: "Die Ehre", english: "the honour" },
+            { german: "Die Linie", english: "the line" },
+            { german: "Die Verabredung", english: "social gathering" },
+            { german: "Sich verabreden", english: "arranging to meet" },
+            { german: "Die Aussage", english: "statement" },
+            { german: "wahrscheinlich", english: "probably" },
+            { german: "Dennoch", english: "nonetheless" },
+            { german: "Das Dorf", english: "the village" },
+            { german: "Der Nebel", english: "the fog" },
+            { german: "Die Finsternis", english: "the darkness" },
+            { german: "umgeben", english: "to surround" },
+            { german: "deuten", english: "to indicate" },
+            { german: "andeuten", english: "to suggest / imply" },
+            { german: "führen", english: "to lead / run" },
+            { german: "blicken", english: "to look" },
+            { german: "Das Nachtlager", english: "place to sleep for the night" },
+            { german: "Das Wirthaus", english: "the inn" },
+            { german: "zwar", english: "indeed" },
+            { german: "vermieten", english: "to rent" },
+            { german: "äußerst", english: "extremely" },
+            { german: "überrascht", english: "surprised" },
+            { german: "verwirrt", english: "confused" },
+            { german: "einige", english: "some" },
+            { german: "holen", english: "to get / fetch" },
+            { german: "Der Dachboden", english: "the attic" },
+            { german: "prüfen", english: "to examine" },
+            { german: "einschlafen", english: "to fall asleep" },
+            { german: "darauf", english: "thereafter" },
+            { german: "aufwachen", english: "to wake up" },
+            { german: "städtisch", english: "urban" },
+            { german: "anziehen", english: "to put on" },
+            { german: "schmal", english: "narrow" },
+            { german: "Der Wirt", english: "the innkeeper" },
+            { german: "herumdrehen", english: "to pull around" },
+            { german: "stellen", english: "to place" },
+            { german: "vorstellen sich", english: "to introduce themselves" },
+            { german: "höflich", english: "politely" },
+            { german: "Der Besitz", english: "the property" },
+            { german: "übernachten", english: "to stay / to spend the night" },
+            { german: "gewissermaßen", english: "in a sense" },
+            { german: "Die Erlaubnis", english: "the permission" },
+            { german: "gräfliche", english: "countly" },
+            { german: "solche", english: "such" },
+            { german: "vorzeigen", english: "to show / exhibit / produce" },
+            { german: "wenigstens", english: "at least" },
+            { german: "Die Haare", english: "the hair" },
+            { german: "aufrichten", english: "to erect" },
+            { german: "allerdings", english: "indeed / certainly / though" },
+            { german: "während", english: "while / during" },
+            { german: "davon", english: "thereof / from that" },
+            { german: "überzeugen", english: "to convince" },
+            { german: "Der Spott", english: "the mockery" },
+            { german: "schieben", english: "to push / shove" },
+            { german: "übrigbleiben", english: "to remain / to be left over" },
+            { german: "rufen", english: "to call / to shout" },
+            { german: "treten", english: "to step" },
+            { german: "Der Schritt", english: "the step" },
+            { german: "möglich", english: "possible" },
+            { german: "gleichmütig", english: "serenely" },
+            { german: "geraten", english: "to get" },
+            { german: "verlangen", english: "to demand / to require" },
+            { german: "Die Behörde", english: "the authority" },
+            { german: "deshalb", english: "therefore" },
+            { german: "mitteilen", english: "to inform" },
+            { german: "Das Gebiet", english: "the territory" },
+            { german: "verlassen", english: "to leave" },
+            { german: "Genug der Komödie", english: "enough of the comedy" },
+            { german: "auffallend", english: "noticeably / strikingly" },
+            { german: "leise", english: "quietly / softly" },
+            { german: "ziehen", english: "to pull" },
+            { german: "Das Benehmen", english: "the behaviour / conduct" },
+            { german: "zurückkommen", english: "to come back" },
+            { german: "zeugen", english: "to testify" },
+            { german: "soweit", english: "so far / insofar as" },
+            { german: "sonst", english: "otherwise" },
+            { german: "kommen lassen", english: "to let come" },
+            { german: "Der Marsch", english: "the march" },
+            { german: "entgehen", english: "to escape / to miss" },
+            { german: "erst", english: "only / first" },
+            { german: "ankommen", english: "to arrive" },
+            { german: "melden", english: "to report / to register" },
+            { german: "Die Belehrung", english: "the instruction" },
+            { german: "Die Unhöflichkeit", english: "the impoliteness" },
+            { german: "gelinde gesagt", english: "to put it lightly / to say the least" },
+            { german: "drehen", english: "to turn" },
+            { german: "Der Rücken", english: "the back (body)" },
+            { german: "zögernd", english: "hesitantly" },
+            { german: "bald", english: "soon" },
+            { german: "Der Ton", english: "the tone" },
+            { german: "gedämpft", english: "dampened" },
+            { german: "Die Rücksichtnahme", english: "the consideration for others" },
+            { german: "gelten", english: "to apply to" },
+            { german: "verständlich", english: "understandable" },
+            { german: "anfragen", english: "to ask (formally / officially)" },
+            { german: "vorzüglich", english: "excellent" },
+            { german: "einrichten", english: "to set up / to furnish" },
+            { german: "erwarten", english: "to expect" },
+            { german: "freilich", english: "of course" },
+            { german: "Die Verschlafenheit", english: "the sleepiness" },
+            { german: "schonen", english: "to spare / to conserve" },
+            { german: "darum", english: "therefore" },
+            { german: "ob", english: "whether" },
+            { german: "zulassen", english: "to allow" },
+            { german: "beschließen", english: "to decide on" },
+            { german: "der Sinn", english: "the sense" },
+            { german: "scheu", english: "shy" },
+            { german: "zusammenrücken", english: "to move closer together" },
+            { german: "besprechen", english: "to discuss" },
+            { german: "die Ankunft", english: "the arrival" },
+            { german: "mächtig", english: "powerful" },
+            { german: "Die Gestalt", english: "the form" },
+            { german: "berichten", english: "to report" },
+            { german: "winzig", english: "tiny" },
+            { german: "recht", english: "pretty / quite" },
+            { german: "zerlumpt", english: "ragged" },
+            { german: "verdächtig", english: "suspicious" },
+            { german: "offenbar", english: "apparently" },
+            { german: "erzählen", english: "to tell / to relate" },
+            { german: "Das Verhör", english: "the interrogation" },
+            { german: "ungnädig", english: "ungracious" },
+            { german: "Die Androhung", english: "the threat" },
+            { german: "Die Grafschaft", english: "the county / shire" },
+            { german: "behaupten", english: "to claim" },
+            { german: "zumindest", english: "at least" },
+            { german: "Die Behauptung", english: "the claim" },
+            { german: "erkundigen", english: "to inquire" },
+            { german: "beantragen", english: "to apply for" },
+            { german: "ausgeben", english: "to spend out" },
+            { german: "Zeit verbringen", english: "to spend time" },
+            { german: "verkaufen", english: "to sell" },
+            { german: "überlegen", english: "to think about" },
+            { german: "besuchen", english: "to visit (a place or person)" },
+            { german: "besichtigen", english: "to visit and look at in detail" },
+            { german: "abholen", english: "to collect" },
+            { german: "vor kurzem / in letzter Zeit", english: "recently" },
+            { german: "die Lieferung", english: "the delivery" },
+            { german: "Geld ausgeben", english: "to spend money" },
+            { german: "Vor allem", english: "mainly / most of all / first of all" },
+            { german: "Das heißt", english: "that means" },
+            { german: "Stehen auf", english: "to be really into something" }
+        ];
+
+        let cards = [...flashcards];
+        let currentIndex = 0;
+        let correct = 0;
+        let attempted = 0;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function shuffleCards() {
+            cards = shuffleArray([...flashcards]);
+            currentIndex = 0;
+            showCard();
+        }
+
+        function showCard() {
+            const card = document.getElementById('card');
+            card.classList.remove('flipped');
+
+            document.getElementById('german-word').textContent = cards[currentIndex].german;
+            document.getElementById('english-word').textContent = cards[currentIndex].english;
+            document.getElementById('current').textContent = currentIndex + 1;
+            document.getElementById('total').textContent = cards.length;
+        }
+
+        function flipCard() {
+            const card = document.getElementById('card');
+            card.classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            currentIndex = (currentIndex + 1) % cards.length;
+            showCard();
+        }
+
+        function prevCard() {
+            currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+            showCard();
+        }
+
+        function markAndNext(knew) {
+            attempted++;
+            if (knew) correct++;
+            document.getElementById('correct').textContent = correct;
+            document.getElementById('attempted').textContent = attempted;
+            nextCard();
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                flipCard();
+            } else if (e.code === 'ArrowRight') {
+                nextCard();
+            } else if (e.code === 'ArrowLeft') {
+                prevCard();
+            } else if (e.code === 'KeyK') {
+                markAndNext(true);
+            } else if (e.code === 'KeyD') {
+                markAndNext(false);
+            }
+        });
+
+        // Initialize
+        shuffleCards();
+    </script>
+</body>
+</html>
