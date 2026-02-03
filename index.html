@@ -148,6 +148,27 @@
             opacity: 0.7;
         }
 
+        .percentage {
+            font-size: 1.1rem;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .round-info {
+            font-size: 0.85rem;
+            margin-top: 8px;
+            opacity: 0.7;
+            color: #ffd700;
+        }
+
+        .btn-restart {
+            background: rgba(255, 107, 107, 0.3);
+            color: white;
+            border: 1px solid rgba(255, 107, 107, 0.5);
+            font-size: 0.85rem;
+            padding: 10px 20px;
+        }
+
         .instructions {
             margin-top: 20px;
             font-size: 0.8rem;
@@ -195,10 +216,17 @@
     </div>
 
     <p class="score">Score: <span id="correct">0</span> / <span id="attempted">0</span></p>
+    <p class="percentage" id="percentage"></p>
+    <p class="round-info" id="round-info"></p>
+
+    <div class="controls" style="margin-top: 15px;">
+        <button class="btn-restart" onclick="fullRestart()">Start Over (All Cards)</button>
+    </div>
+
     <p class="instructions">Press spacebar to flip, arrow keys to navigate</p>
 
     <script>
-        const flashcards = [
+        const allFlashcards = [
             { german: "Die Stimme", english: "the voice" },
             { german: "Erkennen", english: "to recognise" },
             { german: "Der Schriftsteller", english: "the writer" },
@@ -346,10 +374,14 @@
             { german: "Stehen auf", english: "to be really into something" }
         ];
 
-        let cards = [...flashcards];
+        let cards = [];
         let currentIndex = 0;
         let correct = 0;
         let attempted = 0;
+        let missedCards = [];
+        let roundNumber = 1;
+        let answeredThisRound = 0;
+        let totalCardsThisRound = 0;
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -359,10 +391,27 @@
             return array;
         }
 
-        function shuffleCards() {
-            cards = shuffleArray([...flashcards]);
+        function startRound(cardSet, isNewFullRound = false) {
+            if (isNewFullRound) {
+                roundNumber = 1;
+                correct = 0;
+                attempted = 0;
+            }
+            cards = shuffleArray([...cardSet]);
+            missedCards = [];
             currentIndex = 0;
+            answeredThisRound = 0;
+            totalCardsThisRound = cards.length;
+            updateDisplay();
             showCard();
+        }
+
+        function shuffleCards() {
+            startRound(allFlashcards, true);
+        }
+
+        function fullRestart() {
+            startRound(allFlashcards, true);
         }
 
         function showCard() {
@@ -373,6 +422,29 @@
             document.getElementById('english-word').textContent = cards[currentIndex].english;
             document.getElementById('current').textContent = currentIndex + 1;
             document.getElementById('total').textContent = cards.length;
+        }
+
+        function updateDisplay() {
+            document.getElementById('correct').textContent = correct;
+            document.getElementById('attempted').textContent = attempted;
+
+            // Update percentage
+            const pctEl = document.getElementById('percentage');
+            if (attempted > 0) {
+                const pct = Math.round((correct / attempted) * 100);
+                pctEl.textContent = `Success rate: ${pct}%`;
+                pctEl.style.color = pct >= 80 ? '#38ef7d' : pct >= 50 ? '#ffd700' : '#ff6b6b';
+            } else {
+                pctEl.textContent = '';
+            }
+
+            // Update round info
+            const roundEl = document.getElementById('round-info');
+            if (roundNumber === 1) {
+                roundEl.textContent = `Round ${roundNumber} • All ${allFlashcards.length} cards`;
+            } else {
+                roundEl.textContent = `Round ${roundNumber} • Reviewing ${totalCardsThisRound} missed cards`;
+            }
         }
 
         function flipCard() {
@@ -392,10 +464,37 @@
 
         function markAndNext(knew) {
             attempted++;
-            if (knew) correct++;
-            document.getElementById('correct').textContent = correct;
-            document.getElementById('attempted').textContent = attempted;
-            nextCard();
+            answeredThisRound++;
+
+            if (knew) {
+                correct++;
+            } else {
+                // Add to missed cards for next round
+                missedCards.push(cards[currentIndex]);
+            }
+
+            updateDisplay();
+
+            // Check if we've finished this round
+            if (answeredThisRound >= cards.length) {
+                finishRound();
+            } else {
+                // Move to next unanswered card
+                currentIndex = (currentIndex + 1) % cards.length;
+                showCard();
+            }
+        }
+
+        function finishRound() {
+            if (missedCards.length === 0) {
+                // All done! Show completion message
+                alert(`🎉 Congratulations! You've mastered all the cards!\n\nFinal score: ${correct}/${attempted} (${Math.round((correct/attempted)*100)}%)\n\nTap "Start Over" to practice again.`);
+            } else {
+                // Start review round with missed cards
+                roundNumber++;
+                alert(`Round complete!\n\nYou missed ${missedCards.length} card${missedCards.length > 1 ? 's' : ''}.\n\nStarting Round ${roundNumber} to review them.`);
+                startRound(missedCards, false);
+            }
         }
 
         // Keyboard controls
