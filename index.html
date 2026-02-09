@@ -169,6 +169,14 @@
             padding: 10px 20px;
         }
 
+        .btn-sync {
+            background: rgba(100, 150, 255, 0.3);
+            color: white;
+            border: 1px solid rgba(100, 150, 255, 0.5);
+            font-size: 0.85rem;
+            padding: 10px 20px;
+        }
+
         .instructions {
             margin-top: 20px;
             font-size: 0.8rem;
@@ -221,6 +229,11 @@
 
     <div class="controls" style="margin-top: 15px;">
         <button class="btn-restart" onclick="fullRestart()">Start Over (All Cards)</button>
+    </div>
+
+    <div class="controls" style="margin-top: 15px;">
+        <button class="btn-sync" onclick="getSyncCode()">Get Sync Code</button>
+        <button class="btn-sync" onclick="loadSyncCode()">Load Code</button>
     </div>
 
     <p class="instructions">Press spacebar to flip, arrow keys to navigate</p>
@@ -382,6 +395,7 @@
         let roundNumber = 1;
         let answeredThisRound = 0;
         let totalCardsThisRound = 0;
+        let masteredIndices = new Set(); // Track which cards (by original index) have been mastered
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -396,8 +410,10 @@
                 roundNumber = 1;
                 correct = 0;
                 attempted = 0;
+                masteredIndices = new Set();
             }
-            cards = shuffleArray([...cardSet]);
+            // Add original index to each card for tracking
+            cards = shuffleArray(cardSet.map(c => ({...c})));
             missedCards = [];
             currentIndex = 0;
             answeredThisRound = 0;
@@ -407,11 +423,13 @@
         }
 
         function shuffleCards() {
-            startRound(allFlashcards, true);
+            const cardsWithIndex = allFlashcards.map((c, i) => ({...c, originalIndex: i}));
+            startRound(cardsWithIndex, true);
         }
 
         function fullRestart() {
-            startRound(allFlashcards, true);
+            const cardsWithIndex = allFlashcards.map((c, i) => ({...c, originalIndex: i}));
+            startRound(cardsWithIndex, true);
         }
 
         function showCard() {
@@ -466,11 +484,17 @@
             attempted++;
             answeredThisRound++;
 
+            const currentCard = cards[currentIndex];
+
             if (knew) {
                 correct++;
+                // Track this card as mastered
+                if (currentCard.originalIndex !== undefined) {
+                    masteredIndices.add(currentCard.originalIndex);
+                }
             } else {
                 // Add to missed cards for next round
-                missedCards.push(cards[currentIndex]);
+                missedCards.push(currentCard);
             }
 
             updateDisplay();
@@ -494,6 +518,68 @@
                 roundNumber++;
                 alert(`Round complete!\n\nYou missed ${missedCards.length} card${missedCards.length > 1 ? 's' : ''}.\n\nStarting Round ${roundNumber} to review them.`);
                 startRound(missedCards, false);
+            }
+        }
+
+        // Sync code functions
+        function getSyncCode() {
+            const state = {
+                m: Array.from(masteredIndices), // mastered indices
+                c: correct,
+                a: attempted
+            };
+            const json = JSON.stringify(state);
+            const code = btoa(json);
+
+            // Try to copy to clipboard
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(code).then(() => {
+                    alert(`Sync code copied to clipboard!\n\nCode: ${code}\n\nMastered: ${masteredIndices.size}/${allFlashcards.length} cards`);
+                }).catch(() => {
+                    prompt(`Copy this sync code:`, code);
+                });
+            } else {
+                prompt(`Copy this sync code:`, code);
+            }
+        }
+
+        function loadSyncCode() {
+            const code = prompt('Enter your sync code:');
+            if (!code) return;
+
+            try {
+                const json = atob(code.trim());
+                const state = JSON.parse(json);
+
+                // Restore state
+                masteredIndices = new Set(state.m || []);
+                correct = state.c || 0;
+                attempted = state.a || 0;
+
+                // Start with unmastered cards only
+                const unmasteredCards = allFlashcards
+                    .map((c, i) => ({...c, originalIndex: i}))
+                    .filter(c => !masteredIndices.has(c.originalIndex));
+
+                if (unmasteredCards.length === 0) {
+                    alert(`All ${allFlashcards.length} cards already mastered!\n\nTap "Start Over" to reset.`);
+                    updateDisplay();
+                    return;
+                }
+
+                roundNumber = 1;
+                cards = shuffleArray(unmasteredCards);
+                missedCards = [];
+                currentIndex = 0;
+                answeredThisRound = 0;
+                totalCardsThisRound = cards.length;
+
+                updateDisplay();
+                showCard();
+
+                alert(`Progress loaded!\n\nMastered: ${masteredIndices.size}/${allFlashcards.length}\nRemaining: ${unmasteredCards.length} cards`);
+            } catch (e) {
+                alert('Invalid sync code. Please check and try again.');
             }
         }
 
