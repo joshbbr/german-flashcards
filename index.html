@@ -31,6 +31,31 @@
             font-weight: 300;
         }
 
+        .deck-selector {
+            margin-bottom: 12px;
+        }
+
+        .deck-selector select {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            padding-right: 30px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+        }
+
+        .deck-selector select option {
+            background: #1a1a2e;
+            color: white;
+        }
+
         .mode-toggle {
             display: flex;
             gap: 10px;
@@ -266,6 +291,14 @@
 <body>
     <h1>German Flashcards</h1>
 
+    <div class="deck-selector">
+        <select id="deck-select" onchange="switchDeck(this.value)">
+            <option value="conversational">Conversational (280 cards)</option>
+            <option value="literary">Literary/Kafka (145 cards)</option>
+            <option value="all">All Cards (425 cards)</option>
+        </select>
+    </div>
+
     <div class="mode-toggle">
         <button class="mode-btn active" id="mode-normal" onclick="setMode('normal')">German → English</button>
         <button class="mode-btn" id="mode-reverse" onclick="setMode('reverse')">English → German</button>
@@ -464,6 +497,269 @@
             { german: "Stehen auf", english: "to be really into something", exampleDe: "Ich stehe auf Jazz-Musik.", exampleEn: "I'm really into jazz music." }
         ];
 
+        // Conversational German Vocabulary
+        const conversationalVocab = [
+            { german: "meinen", english: "to mean / to think", exampleDe: "Was meinst du damit?", exampleEn: "What do you mean by that?" },
+            { german: "glauben", english: "to believe / to think", exampleDe: "Ich glaube, er kommt später.", exampleEn: "I think he's coming later." },
+            { german: "wissen", english: "to know (facts)", exampleDe: "Ich weiß es nicht.", exampleEn: "I don't know." },
+            { german: "kennen", english: "to know (people/places)", exampleDe: "Kennst du seinen Bruder?", exampleEn: "Do you know his brother?" },
+            { german: "verstehen", english: "to understand", exampleDe: "Verstehst du, was ich meine?", exampleEn: "Do you understand what I mean?" },
+            { german: "versuchen", english: "to try", exampleDe: "Ich versuche, früher zu kommen.", exampleEn: "I'm trying to come earlier." },
+            { german: "brauchen", english: "to need", exampleDe: "Ich brauche deine Hilfe.", exampleEn: "I need your help." },
+            { german: "schaffen", english: "to manage / to do", exampleDe: "Das schaffen wir!", exampleEn: "We can do it!" },
+            { german: "klappen", english: "to work out", exampleDe: "Hat alles geklappt?", exampleEn: "Did everything work out?" },
+            { german: "stimmen", english: "to be correct", exampleDe: "Das stimmt.", exampleEn: "That's right." },
+            { german: "passen", english: "to fit / to suit", exampleDe: "Passt dir Samstag?", exampleEn: "Does Saturday work for you?" },
+            { german: "reichen", english: "to be enough", exampleDe: "Das reicht mir.", exampleEn: "That's enough for me." },
+            { german: "fehlen", english: "to be missing / to miss", exampleDe: "Du fehlst mir.", exampleEn: "I miss you." },
+            { german: "gehören", english: "to belong to", exampleDe: "Wem gehört das?", exampleEn: "Who does this belong to?" },
+            { german: "sich freuen", english: "to be happy / look forward", exampleDe: "Ich freue mich auf dich.", exampleEn: "I'm looking forward to seeing you." },
+            { german: "sich ärgern", english: "to be annoyed", exampleDe: "Ich ärgere mich über ihn.", exampleEn: "I'm annoyed with him." },
+            { german: "sich fühlen", english: "to feel", exampleDe: "Wie fühlst du dich?", exampleEn: "How do you feel?" },
+            { german: "sich erinnern", english: "to remember", exampleDe: "Erinnerst du dich an sie?", exampleEn: "Do you remember her?" },
+            { german: "sich entscheiden", english: "to decide", exampleDe: "Ich kann mich nicht entscheiden.", exampleEn: "I can't decide." },
+            { german: "sich unterhalten", english: "to chat", exampleDe: "Wir haben uns lange unterhalten.", exampleEn: "We chatted for a long time." },
+            { german: "sich treffen", english: "to meet up", exampleDe: "Wollen wir uns treffen?", exampleEn: "Shall we meet up?" },
+            { german: "sich beeilen", english: "to hurry", exampleDe: "Beeil dich!", exampleEn: "Hurry up!" },
+            { german: "aufhören", english: "to stop", exampleDe: "Hör auf damit!", exampleEn: "Stop it!" },
+            { german: "anfangen", english: "to start / begin", exampleDe: "Wann fängt der Film an?", exampleEn: "When does the film start?" },
+            { german: "aufmachen", english: "to open", exampleDe: "Mach mal das Fenster auf.", exampleEn: "Open the window." },
+            { german: "zumachen", english: "to close", exampleDe: "Mach bitte die Tür zu.", exampleEn: "Please close the door." },
+            { german: "ausmachen", english: "to turn off", exampleDe: "Mach das Licht aus.", exampleEn: "Turn off the light." },
+            { german: "anmachen", english: "to turn on", exampleDe: "Kannst du die Heizung anmachen?", exampleEn: "Can you turn on the heating?" },
+            { german: "mitkommen", english: "to come along", exampleDe: "Kommst du mit?", exampleEn: "Are you coming along?" },
+            { german: "mitnehmen", english: "to take along", exampleDe: "Nimm einen Regenschirm mit.", exampleEn: "Take an umbrella with you." },
+            { german: "mitbringen", english: "to bring along", exampleDe: "Soll ich was mitbringen?", exampleEn: "Should I bring something?" },
+            { german: "ausgehen", english: "to go out", exampleDe: "Gehen wir heute Abend aus?", exampleEn: "Shall we go out tonight?" },
+            { german: "vorbeikommen", english: "to come by", exampleDe: "Komm doch mal vorbei!", exampleEn: "Come by sometime!" },
+            { german: "weitermachen", english: "to continue", exampleDe: "Mach einfach weiter.", exampleEn: "Just keep going." },
+            { german: "aufpassen", english: "to pay attention", exampleDe: "Pass auf!", exampleEn: "Watch out!" },
+            { german: "nachdenken", english: "to think about", exampleDe: "Ich muss darüber nachdenken.", exampleEn: "I need to think about it." },
+            { german: "ausprobieren", english: "to try out", exampleDe: "Probier das mal aus!", exampleEn: "Try this out!" },
+            { german: "herausfinden", english: "to find out", exampleDe: "Wir müssen das herausfinden.", exampleEn: "We need to find that out." },
+            { german: "kapieren", english: "to get / understand (informal)", exampleDe: "Kapierst du das?", exampleEn: "Do you get it?" },
+            { german: "checken", english: "to check (informal)", exampleDe: "Check mal dein Handy.", exampleEn: "Check your phone." },
+            { german: "nerven", english: "to annoy", exampleDe: "Das nervt mich so.", exampleEn: "That annoys me so much." },
+            { german: "stören", english: "to disturb", exampleDe: "Störe ich gerade?", exampleEn: "Am I disturbing you?" },
+            { german: "sich lohnen", english: "to be worth it", exampleDe: "Das lohnt sich nicht.", exampleEn: "It's not worth it." },
+            { german: "sich kümmern", english: "to take care of", exampleDe: "Ich kümmere mich darum.", exampleEn: "I'll take care of it." },
+            { german: "sich gewöhnen", english: "to get used to", exampleDe: "Daran gewöhnt man sich.", exampleEn: "You get used to it." },
+            { german: "sich aufregen", english: "to get worked up", exampleDe: "Reg dich nicht auf!", exampleEn: "Don't get worked up!" },
+            { german: "der Typ", english: "the guy", exampleDe: "Wer ist der Typ da?", exampleEn: "Who's that guy there?" },
+            { german: "die Leute", english: "the people", exampleDe: "Die Leute hier sind nett.", exampleEn: "The people here are nice." },
+            { german: "der Kumpel", english: "the mate / buddy", exampleDe: "Er ist ein alter Kumpel.", exampleEn: "He's an old mate." },
+            { german: "die Sache", english: "the thing / matter", exampleDe: "Das ist eine andere Sache.", exampleEn: "That's a different matter." },
+            { german: "das Ding", english: "the thing", exampleDe: "Was ist das für ein Ding?", exampleEn: "What kind of thing is that?" },
+            { german: "der Quatsch", english: "the nonsense", exampleDe: "Das ist doch Quatsch!", exampleEn: "That's nonsense!" },
+            { german: "der Stress", english: "the stress", exampleDe: "Ich hab gerade viel Stress.", exampleEn: "I have a lot of stress right now." },
+            { german: "die Ahnung", english: "the idea / clue", exampleDe: "Keine Ahnung!", exampleEn: "No idea!" },
+            { german: "die Lust", english: "the desire / mood", exampleDe: "Ich hab keine Lust.", exampleEn: "I don't feel like it." },
+            { german: "die Laune", english: "the mood", exampleDe: "Er hat schlechte Laune.", exampleEn: "He's in a bad mood." },
+            { german: "der Grund", english: "the reason", exampleDe: "Aus welchem Grund?", exampleEn: "For what reason?" },
+            { german: "der Unterschied", english: "the difference", exampleDe: "Was ist der Unterschied?", exampleEn: "What's the difference?" },
+            { german: "das Problem", english: "the problem", exampleDe: "Kein Problem!", exampleEn: "No problem!" },
+            { german: "die Meinung", english: "the opinion", exampleDe: "Meiner Meinung nach...", exampleEn: "In my opinion..." },
+            { german: "der Plan", english: "the plan", exampleDe: "Was ist der Plan für heute?", exampleEn: "What's the plan for today?" },
+            { german: "der Termin", english: "the appointment", exampleDe: "Ich hab einen Termin.", exampleEn: "I have an appointment." },
+            { german: "die Nachricht", english: "the message", exampleDe: "Hast du meine Nachricht bekommen?", exampleEn: "Did you get my message?" },
+            { german: "das Gespräch", english: "the conversation", exampleDe: "Das war ein gutes Gespräch.", exampleEn: "That was a good conversation." },
+            { german: "der Witz", english: "the joke", exampleDe: "Das war nur ein Witz.", exampleEn: "It was just a joke." },
+            { german: "die Überraschung", english: "the surprise", exampleDe: "Das ist eine Überraschung!", exampleEn: "That's a surprise!" },
+            { german: "der Fehler", english: "the mistake", exampleDe: "Das war mein Fehler.", exampleEn: "That was my mistake." },
+            { german: "die Wahrheit", english: "the truth", exampleDe: "Sag mir die Wahrheit.", exampleEn: "Tell me the truth." },
+            { german: "das Gefühl", english: "the feeling", exampleDe: "Ich hab ein komisches Gefühl.", exampleEn: "I have a strange feeling." },
+            { german: "das Glück", english: "the luck / happiness", exampleDe: "Du hast Glück gehabt!", exampleEn: "You were lucky!" },
+            { german: "das Pech", english: "the bad luck", exampleDe: "So ein Pech!", exampleEn: "Such bad luck!" },
+            { german: "der Spaß", english: "the fun", exampleDe: "Das macht Spaß!", exampleEn: "That's fun!" },
+            { german: "die Party", english: "the party", exampleDe: "Kommst du zur Party?", exampleEn: "Are you coming to the party?" },
+            { german: "die Kneipe", english: "the pub", exampleDe: "Gehen wir in die Kneipe?", exampleEn: "Shall we go to the pub?" },
+            { german: "das Handy", english: "the mobile phone", exampleDe: "Mein Handy ist leer.", exampleEn: "My phone is dead." },
+            { german: "die WG", english: "the shared flat", exampleDe: "Ich wohne in einer WG.", exampleEn: "I live in a shared flat." },
+            { german: "das Zeug", english: "the stuff", exampleDe: "Was ist das für Zeug?", exampleEn: "What's this stuff?" },
+            { german: "toll", english: "great / awesome", exampleDe: "Das ist toll!", exampleEn: "That's great!" },
+            { german: "super", english: "super / great", exampleDe: "Das ist super!", exampleEn: "That's great!" },
+            { german: "geil", english: "awesome / cool (slang)", exampleDe: "Das ist voll geil!", exampleEn: "That's so cool!" },
+            { german: "krass", english: "crazy / intense (slang)", exampleDe: "Das ist echt krass.", exampleEn: "That's really intense." },
+            { german: "cool", english: "cool", exampleDe: "Das ist echt cool.", exampleEn: "That's really cool." },
+            { german: "blöd", english: "stupid / annoying", exampleDe: "Das ist so blöd.", exampleEn: "That's so stupid." },
+            { german: "doof", english: "dumb / silly", exampleDe: "Sei nicht so doof.", exampleEn: "Don't be so dumb." },
+            { german: "schlimm", english: "bad / serious", exampleDe: "Das ist nicht so schlimm.", exampleEn: "That's not so bad." },
+            { german: "komisch", english: "strange / funny", exampleDe: "Das ist komisch.", exampleEn: "That's strange." },
+            { german: "seltsam", english: "weird / odd", exampleDe: "Das ist seltsam.", exampleEn: "That's weird." },
+            { german: "lustig", english: "funny", exampleDe: "Das ist lustig.", exampleEn: "That's funny." },
+            { german: "witzig", english: "funny / witty", exampleDe: "Das ist witzig.", exampleEn: "That's funny." },
+            { german: "langweilig", english: "boring", exampleDe: "Der Film war langweilig.", exampleEn: "The film was boring." },
+            { german: "spannend", english: "exciting", exampleDe: "Das Buch ist spannend.", exampleEn: "The book is exciting." },
+            { german: "anstrengend", english: "exhausting", exampleDe: "Die Arbeit ist anstrengend.", exampleEn: "The work is exhausting." },
+            { german: "gemütlich", english: "cozy", exampleDe: "Es ist hier gemütlich.", exampleEn: "It's cozy here." },
+            { german: "praktisch", english: "practical / handy", exampleDe: "Das ist sehr praktisch.", exampleEn: "That's very practical." },
+            { german: "kompliziert", english: "complicated", exampleDe: "Das ist zu kompliziert.", exampleEn: "That's too complicated." },
+            { german: "einfach", english: "simple / just", exampleDe: "Das ist ganz einfach.", exampleEn: "That's quite simple." },
+            { german: "egal", english: "doesn't matter", exampleDe: "Das ist mir egal.", exampleEn: "I don't care." },
+            { german: "peinlich", english: "embarrassing", exampleDe: "Das war so peinlich.", exampleEn: "That was so embarrassing." },
+            { german: "typisch", english: "typical", exampleDe: "Typisch!", exampleEn: "Typical!" },
+            { german: "echt", english: "real / really", exampleDe: "Echt jetzt?", exampleEn: "Really? / For real?" },
+            { german: "total", english: "totally", exampleDe: "Das ist total verrückt.", exampleEn: "That's totally crazy." },
+            { german: "unglaublich", english: "unbelievable", exampleDe: "Das ist unglaublich!", exampleEn: "That's unbelievable!" },
+            { german: "verrückt", english: "crazy", exampleDe: "Bist du verrückt?", exampleEn: "Are you crazy?" },
+            { german: "nett", english: "nice", exampleDe: "Das ist nett von dir.", exampleEn: "That's nice of you." },
+            { german: "lieb", english: "sweet / dear", exampleDe: "Das ist lieb.", exampleEn: "That's sweet." },
+            { german: "süß", english: "sweet / cute", exampleDe: "Die Katze ist süß.", exampleEn: "The cat is cute." },
+            { german: "fertig", english: "finished / exhausted", exampleDe: "Ich bin fertig.", exampleEn: "I'm done. / I'm exhausted." },
+            { german: "bereit", english: "ready", exampleDe: "Bist du bereit?", exampleEn: "Are you ready?" },
+            { german: "satt", english: "full (from eating)", exampleDe: "Ich bin satt.", exampleEn: "I'm full." },
+            { german: "müde", english: "tired", exampleDe: "Ich bin so müde.", exampleEn: "I'm so tired." },
+            { german: "betrunken", english: "drunk", exampleDe: "Er ist betrunken.", exampleEn: "He's drunk." },
+            { german: "pleite", english: "broke (no money)", exampleDe: "Ich bin pleite.", exampleEn: "I'm broke." },
+            { german: "Na?", english: "Hey? / What's up?", exampleDe: "Na, wie geht's?", exampleEn: "Hey, how's it going?" },
+            { german: "Na ja", english: "Well... / I guess", exampleDe: "Na ja, mal sehen.", exampleEn: "Well, we'll see." },
+            { german: "Na klar", english: "Of course / Sure", exampleDe: "Na klar kannst du kommen.", exampleEn: "Of course you can come." },
+            { german: "Na und?", english: "So what?", exampleDe: "Na und? Ist mir egal.", exampleEn: "So what? I don't care." },
+            { german: "Ach so", english: "Oh I see", exampleDe: "Ach so, jetzt verstehe ich.", exampleEn: "Oh I see, now I understand." },
+            { german: "Ach was", english: "Oh come on / No way", exampleDe: "Ach was, das stimmt nicht.", exampleEn: "Oh come on, that's not true." },
+            { german: "Genau", english: "Exactly", exampleDe: "Genau das meine ich.", exampleEn: "That's exactly what I mean." },
+            { german: "Stimmt", english: "True / That's right", exampleDe: "Stimmt, du hast recht.", exampleEn: "True, you're right." },
+            { german: "Eben", english: "Exactly / That's the point", exampleDe: "Eben! Das sage ich doch.", exampleEn: "Exactly! That's what I'm saying." },
+            { german: "Halt", english: "Just / Simply (filler)", exampleDe: "Das ist halt so.", exampleEn: "That's just how it is." },
+            { german: "Doch", english: "Yes (contradicting)", exampleDe: "Doch, das stimmt!", exampleEn: "Yes it is! (contradicting 'no')" },
+            { german: "Oder?", english: "Right? / Isn't it?", exampleDe: "Das war gut, oder?", exampleEn: "That was good, right?" },
+            { german: "Oder so", english: "Or something like that", exampleDe: "Um acht oder so.", exampleEn: "Around eight or so." },
+            { german: "Also", english: "So / Well / I mean", exampleDe: "Also, ich weiß nicht...", exampleEn: "Well, I don't know..." },
+            { german: "Eigentlich", english: "Actually", exampleDe: "Eigentlich wollte ich gehen.", exampleEn: "Actually I wanted to leave." },
+            { german: "Übrigens", english: "By the way", exampleDe: "Übrigens, hast du gehört...?", exampleEn: "By the way, did you hear...?" },
+            { german: "Jedenfalls", english: "Anyway", exampleDe: "Jedenfalls, das war lustig.", exampleEn: "Anyway, that was funny." },
+            { german: "Trotzdem", english: "Nevertheless / Still", exampleDe: "Trotzdem mag ich ihn.", exampleEn: "I still like him." },
+            { german: "Irgendwie", english: "Somehow / Kind of", exampleDe: "Das ist irgendwie komisch.", exampleEn: "That's kind of weird." },
+            { german: "Irgendwann", english: "Sometime / Eventually", exampleDe: "Irgendwann schaffe ich das.", exampleEn: "I'll manage it eventually." },
+            { german: "Irgendwo", english: "Somewhere", exampleDe: "Das muss irgendwo sein.", exampleEn: "It must be somewhere." },
+            { german: "Irgendwas", english: "Something", exampleDe: "Irgendwas stimmt nicht.", exampleEn: "Something's not right." },
+            { german: "Immerhin", english: "At least / After all", exampleDe: "Immerhin haben wir es versucht.", exampleEn: "At least we tried." },
+            { german: "Anscheinend", english: "Apparently", exampleDe: "Anscheinend kommt er nicht.", exampleEn: "Apparently he's not coming." },
+            { german: "Bestimmt", english: "Definitely", exampleDe: "Das klappt bestimmt.", exampleEn: "That'll definitely work." },
+            { german: "Auf jeden Fall", english: "Definitely", exampleDe: "Auf jeden Fall komme ich.", exampleEn: "I'm definitely coming." },
+            { german: "Auf keinen Fall", english: "No way / Definitely not", exampleDe: "Auf keinen Fall!", exampleEn: "No way!" },
+            { german: "Keine Ahnung", english: "No idea", exampleDe: "Keine Ahnung, wo er ist.", exampleEn: "No idea where he is." },
+            { german: "Kein Problem", english: "No problem", exampleDe: "Kein Problem, ich helfe dir.", exampleEn: "No problem, I'll help you." },
+            { german: "Macht nichts", english: "Doesn't matter", exampleDe: "Macht nichts, ich verstehe.", exampleEn: "Never mind, I understand." },
+            { german: "Lass mal", english: "Never mind / Forget it", exampleDe: "Lass mal, ich mach das.", exampleEn: "Never mind, I'll do it." },
+            { german: "Moment mal", english: "Wait a moment", exampleDe: "Moment mal, das stimmt nicht.", exampleEn: "Wait a moment, that's not right." },
+            { german: "Weißt du was", english: "You know what", exampleDe: "Weißt du was, ich komme mit.", exampleEn: "You know what, I'll come along." },
+            { german: "Sag mal", english: "Tell me / Say", exampleDe: "Sag mal, was machst du da?", exampleEn: "Hey, what are you doing there?" },
+            { german: "Schau mal", english: "Look", exampleDe: "Schau mal, wie schön!", exampleEn: "Look how beautiful!" },
+            { german: "Hör mal", english: "Listen", exampleDe: "Hör mal, das ist wichtig.", exampleEn: "Listen, this is important." },
+            { german: "Guck mal", english: "Look (informal)", exampleDe: "Guck mal, was ich gefunden habe!", exampleEn: "Look what I found!" },
+            { german: "Krass!", english: "Wow! / Crazy!", exampleDe: "Krass, das ist unglaublich!", exampleEn: "Wow, that's unbelievable!" },
+            { german: "Wahnsinn!", english: "Crazy! / Insane!", exampleDe: "Wahnsinn, wie schnell das ging!", exampleEn: "Crazy how fast that was!" },
+            { german: "Hammer!", english: "Awesome!", exampleDe: "Das ist der Hammer!", exampleEn: "That's awesome!" },
+            { german: "Echt?", english: "Really?", exampleDe: "Echt? Das glaub ich nicht.", exampleEn: "Really? I don't believe it." },
+            { german: "Im Ernst?", english: "Seriously?", exampleDe: "Im Ernst? Das ist ja verrückt.", exampleEn: "Seriously? That's crazy." },
+            { german: "Ehrlich gesagt", english: "To be honest", exampleDe: "Ehrlich gesagt, mag ich das nicht.", exampleEn: "To be honest, I don't like it." },
+            { german: "So ein Mist", english: "Damn it", exampleDe: "So ein Mist, ich hab's vergessen!", exampleEn: "Damn it, I forgot!" },
+            { german: "Verdammt", english: "Damn", exampleDe: "Verdammt, das ist schlecht.", exampleEn: "Damn, that's bad." },
+            { german: "Mist!", english: "Crap! / Damn!", exampleDe: "Mist! Ich hab den Bus verpasst.", exampleEn: "Crap! I missed the bus." },
+            { german: "Mensch!", english: "Man! / Geez!", exampleDe: "Mensch, das ist ja toll!", exampleEn: "Man, that's great!" },
+            { german: "Boah", english: "Wow (informal)", exampleDe: "Boah, ist das heiß heute.", exampleEn: "Wow, it's hot today." },
+            { german: "Na toll", english: "Great (sarcastic)", exampleDe: "Na toll, jetzt regnet es.", exampleEn: "Great, now it's raining." },
+            { german: "Alles klar", english: "All clear / Got it", exampleDe: "Alles klar, ich verstehe.", exampleEn: "Got it, I understand." },
+            { german: "In Ordnung", english: "All right / OK", exampleDe: "In Ordnung, machen wir so.", exampleEn: "All right, let's do that." },
+            { german: "Geht klar", english: "OK / Will do", exampleDe: "Geht klar, ich mach das.", exampleEn: "OK, I'll do it." },
+            { german: "Auf geht's", english: "Let's go", exampleDe: "Auf geht's, wir müssen los!", exampleEn: "Let's go, we need to leave!" },
+            { german: "Los geht's", english: "Here we go", exampleDe: "Los geht's!", exampleEn: "Here we go!" },
+            { german: "Bis gleich", english: "See you soon", exampleDe: "Bis gleich!", exampleEn: "See you soon!" },
+            { german: "Bis dann", english: "See you later", exampleDe: "Bis dann, mach's gut!", exampleEn: "See you later, take care!" },
+            { german: "Tschüss", english: "Bye", exampleDe: "Tschüss, bis morgen!", exampleEn: "Bye, see you tomorrow!" },
+            { german: "Mach's gut", english: "Take care", exampleDe: "Mach's gut, wir sehen uns!", exampleEn: "Take care, see you!" },
+            { german: "weil", english: "because", exampleDe: "Ich bleibe, weil ich müde bin.", exampleEn: "I'm staying because I'm tired." },
+            { german: "obwohl", english: "although", exampleDe: "Ich gehe, obwohl ich müde bin.", exampleEn: "I'm going although I'm tired." },
+            { german: "damit", english: "so that", exampleDe: "Ich lerne, damit ich es verstehe.", exampleEn: "I'm learning so that I understand it." },
+            { german: "falls", english: "in case / if", exampleDe: "Falls du kommst, ruf an.", exampleEn: "If you're coming, call me." },
+            { german: "sobald", english: "as soon as", exampleDe: "Sobald ich fertig bin, rufe ich an.", exampleEn: "As soon as I'm done, I'll call." },
+            { german: "bevor", english: "before", exampleDe: "Bevor du gehst, sag Bescheid.", exampleEn: "Before you go, let me know." },
+            { german: "nachdem", english: "after", exampleDe: "Nachdem ich gegessen habe, gehe ich.", exampleEn: "After I've eaten, I'll go." },
+            { german: "seit", english: "since", exampleDe: "Seit ich hier wohne, bin ich glücklich.", exampleEn: "Since I've been living here, I'm happy." },
+            { german: "bis", english: "until", exampleDe: "Warte, bis ich komme.", exampleEn: "Wait until I come." },
+            { german: "außerdem", english: "besides / also", exampleDe: "Außerdem ist es zu teuer.", exampleEn: "Besides, it's too expensive." },
+            { german: "deswegen", english: "that's why", exampleDe: "Deswegen bin ich hier.", exampleEn: "That's why I'm here." },
+            { german: "stattdessen", english: "instead", exampleDe: "Geh nicht, bleib stattdessen.", exampleEn: "Don't go, stay instead." },
+            { german: "entweder... oder", english: "either... or", exampleDe: "Entweder kommst du oder du gehst.", exampleEn: "Either you come or you go." },
+            { german: "weder... noch", english: "neither... nor", exampleDe: "Weder er noch sie war da.", exampleEn: "Neither he nor she was there." },
+            { german: "je... desto", english: "the more... the more", exampleDe: "Je mehr, desto besser.", exampleEn: "The more, the better." },
+            { german: "Wie bitte?", english: "Pardon?", exampleDe: "Wie bitte? Ich hab dich nicht verstanden.", exampleEn: "Pardon? I didn't understand you." },
+            { german: "Wieso?", english: "Why? / How come?", exampleDe: "Wieso fragst du?", exampleEn: "Why do you ask?" },
+            { german: "Woher?", english: "Where from?", exampleDe: "Woher weißt du das?", exampleEn: "How do you know that?" },
+            { german: "Wohin?", english: "Where to?", exampleDe: "Wohin gehst du?", exampleEn: "Where are you going?" },
+            { german: "Wofür?", english: "What for?", exampleDe: "Wofür brauchst du das?", exampleEn: "What do you need that for?" },
+            { german: "Worüber?", english: "About what?", exampleDe: "Worüber redet ihr?", exampleEn: "What are you talking about?" },
+            { german: "Was für ein/e?", english: "What kind of?", exampleDe: "Was für ein Auto fährst du?", exampleEn: "What kind of car do you drive?" },
+            { german: "Wie viel?", english: "How much?", exampleDe: "Wie viel kostet das?", exampleEn: "How much does it cost?" },
+            { german: "Wie lange?", english: "How long?", exampleDe: "Wie lange dauert das?", exampleEn: "How long does that take?" },
+            { german: "Wie oft?", english: "How often?", exampleDe: "Wie oft gehst du ins Kino?", exampleEn: "How often do you go to the cinema?" },
+            { german: "gerade", english: "just now / right now", exampleDe: "Ich mache gerade Pause.", exampleEn: "I'm taking a break right now." },
+            { german: "gleich", english: "in a moment", exampleDe: "Ich komme gleich.", exampleEn: "I'll be there in a moment." },
+            { german: "sofort", english: "immediately", exampleDe: "Ich komme sofort!", exampleEn: "I'm coming immediately!" },
+            { german: "nachher", english: "later / afterwards", exampleDe: "Bis nachher!", exampleEn: "See you later!" },
+            { german: "vorher", english: "before / beforehand", exampleDe: "Ruf mich vorher an.", exampleEn: "Call me beforehand." },
+            { german: "neulich", english: "recently", exampleDe: "Neulich hab ich ihn gesehen.", exampleEn: "I saw him the other day." },
+            { german: "damals", english: "back then", exampleDe: "Damals war alles anders.", exampleEn: "Back then everything was different." },
+            { german: "inzwischen", english: "meanwhile / by now", exampleDe: "Inzwischen ist alles anders.", exampleEn: "By now everything is different." },
+            { german: "meistens", english: "usually", exampleDe: "Meistens bleibe ich zu Hause.", exampleEn: "I usually stay home." },
+            { german: "manchmal", english: "sometimes", exampleDe: "Manchmal gehe ich joggen.", exampleEn: "Sometimes I go jogging." },
+            { german: "selten", english: "rarely", exampleDe: "Ich sehe ihn selten.", exampleEn: "I rarely see him." },
+            { german: "nie", english: "never", exampleDe: "Das mache ich nie.", exampleEn: "I never do that." },
+            { german: "immer", english: "always", exampleDe: "Er kommt immer zu spät.", exampleEn: "He always comes late." },
+            { german: "oft", english: "often", exampleDe: "Wir sehen uns oft.", exampleEn: "We see each other often." },
+            { german: "ab und zu", english: "now and then", exampleDe: "Ab und zu gehe ich schwimmen.", exampleEn: "I go swimming now and then." },
+            { german: "noch nie", english: "never (before)", exampleDe: "Das hab ich noch nie gemacht.", exampleEn: "I've never done that before." },
+            { german: "schon mal", english: "ever / before", exampleDe: "Warst du schon mal in Berlin?", exampleEn: "Have you ever been to Berlin?" },
+            { german: "nochmal", english: "again", exampleDe: "Kannst du das nochmal sagen?", exampleEn: "Can you say that again?" },
+            { german: "plötzlich", english: "suddenly", exampleDe: "Plötzlich fing es an zu regnen.", exampleEn: "Suddenly it started raining." },
+            { german: "endlich", english: "finally", exampleDe: "Endlich bist du da!", exampleEn: "Finally you're here!" },
+            { german: "danach", english: "after that", exampleDe: "Danach gehen wir essen.", exampleEn: "After that we'll go eat." },
+            { german: "heute Abend", english: "this evening", exampleDe: "Was machst du heute Abend?", exampleEn: "What are you doing this evening?" },
+            { german: "morgen früh", english: "tomorrow morning", exampleDe: "Morgen früh habe ich Zeit.", exampleEn: "I have time tomorrow morning." },
+            { german: "übermorgen", english: "day after tomorrow", exampleDe: "Übermorgen fahren wir weg.", exampleEn: "We're leaving the day after tomorrow." },
+            { german: "nächste Woche", english: "next week", exampleDe: "Nächste Woche bin ich im Urlaub.", exampleEn: "Next week I'm on vacation." },
+            { german: "klingen", english: "to sound", exampleDe: "Das klingt gut.", exampleEn: "That sounds good." },
+            { german: "scheinen", english: "to seem", exampleDe: "Er scheint nett zu sein.", exampleEn: "He seems to be nice." },
+            { german: "riechen", english: "to smell", exampleDe: "Das riecht gut.", exampleEn: "That smells good." },
+            { german: "schmecken", english: "to taste", exampleDe: "Wie schmeckt es?", exampleEn: "How does it taste?" },
+            { german: "leihen", english: "to lend / borrow", exampleDe: "Kannst du mir Geld leihen?", exampleEn: "Can you lend me money?" },
+            { german: "teilen", english: "to share", exampleDe: "Wollen wir teilen?", exampleEn: "Shall we share?" },
+            { german: "versprechen", english: "to promise", exampleDe: "Ich verspreche es dir.", exampleEn: "I promise you." },
+            { german: "vergessen", english: "to forget", exampleDe: "Ich hab's vergessen.", exampleEn: "I forgot." },
+            { german: "bedeuten", english: "to mean", exampleDe: "Was bedeutet das?", exampleEn: "What does that mean?" },
+            { german: "erklären", english: "to explain", exampleDe: "Kannst du das erklären?", exampleEn: "Can you explain that?" },
+            { german: "ändern", english: "to change", exampleDe: "Das kann man nicht ändern.", exampleEn: "You can't change that." },
+            { german: "verbessern", english: "to improve", exampleDe: "Ich will mein Deutsch verbessern.", exampleEn: "I want to improve my German." },
+            { german: "empfehlen", english: "to recommend", exampleDe: "Was empfiehlst du?", exampleEn: "What do you recommend?" },
+            { german: "vorschlagen", english: "to suggest", exampleDe: "Ich schlage vor, dass wir gehen.", exampleEn: "I suggest we go." },
+            { german: "sich beschweren", english: "to complain", exampleDe: "Er beschwert sich immer.", exampleEn: "He always complains." },
+            { german: "sich entschuldigen", english: "to apologize", exampleDe: "Ich entschuldige mich.", exampleEn: "I apologize." },
+            { german: "sich streiten", english: "to argue", exampleDe: "Wir haben uns gestritten.", exampleEn: "We had an argument." },
+            { german: "sich vertragen", english: "to get along / make up", exampleDe: "Wir vertragen uns wieder.", exampleEn: "We've made up." },
+            { german: "sich verlieben", english: "to fall in love", exampleDe: "Ich hab mich verliebt.", exampleEn: "I fell in love." },
+            { german: "sich trennen", english: "to break up", exampleDe: "Sie haben sich getrennt.", exampleEn: "They broke up." },
+            { german: "zusammen sein", english: "to be together", exampleDe: "Wie lange seid ihr zusammen?", exampleEn: "How long have you been together?" },
+            { german: "heiraten", english: "to marry", exampleDe: "Sie heiraten nächsten Monat.", exampleEn: "They're getting married next month." }
+        ];
+
+        // Active deck
+        let currentDeck = 'conversational';
+        let allFlashcardsActive = conversationalVocab;
+
+        function switchDeck(deckName) {
+            currentDeck = deckName;
+            if (deckName === 'conversational') {
+                allFlashcardsActive = conversationalVocab;
+            } else if (deckName === 'literary') {
+                allFlashcardsActive = allFlashcards;
+            } else {
+                allFlashcardsActive = [...conversationalVocab, ...allFlashcards];
+            }
+            cardBoxes = {}; // Reset spaced repetition for new deck
+            fullRestart();
+        }
+
         // State
         let cards = [];
         let currentIndex = 0;
@@ -536,13 +832,13 @@
         }
 
         function shuffleCards() {
-            const cardsWithIndex = allFlashcards.map((c, i) => ({...c, originalIndex: i}));
+            const cardsWithIndex = allFlashcardsActive.map((c, i) => ({...c, originalIndex: i}));
             startRound(cardsWithIndex, true);
         }
 
         function fullRestart() {
             cardBoxes = {}; // Reset spaced repetition
-            const cardsWithIndex = allFlashcards.map((c, i) => ({...c, originalIndex: i}));
+            const cardsWithIndex = allFlashcardsActive.map((c, i) => ({...c, originalIndex: i}));
             startRound(cardsWithIndex, true);
         }
 
@@ -643,7 +939,7 @@
 
             const roundEl = document.getElementById('round-info');
             if (roundNumber === 1) {
-                roundEl.textContent = `Round ${roundNumber} • All ${allFlashcards.length} cards`;
+                roundEl.textContent = `Round ${roundNumber} • All ${allFlashcardsActive.length} cards`;
             } else {
                 roundEl.textContent = `Round ${roundNumber} • Reviewing ${totalCardsThisRound} missed cards`;
             }
@@ -714,7 +1010,7 @@
 
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(code).then(() => {
-                    alert(`Sync code copied!\n\nMastered: ${masteredIndices.size}/${allFlashcards.length} cards`);
+                    alert(`Sync code copied!\n\nMastered: ${masteredIndices.size}/${allFlashcardsActive.length} cards`);
                 }).catch(() => {
                     prompt(`Copy this sync code:`, code);
                 });
@@ -741,7 +1037,7 @@
                     .filter(c => !masteredIndices.has(c.originalIndex));
 
                 if (unmasteredCards.length === 0) {
-                    alert(`All ${allFlashcards.length} cards already mastered!\n\nTap "Start Over" to reset.`);
+                    alert(`All ${allFlashcardsActive.length} cards already mastered!\n\nTap "Start Over" to reset.`);
                     updateDisplay();
                     return;
                 }
@@ -749,7 +1045,7 @@
                 roundNumber = 1;
                 startRound(unmasteredCards, false);
 
-                alert(`Progress loaded!\n\nMastered: ${masteredIndices.size}/${allFlashcards.length}\nRemaining: ${unmasteredCards.length} cards`);
+                alert(`Progress loaded!\n\nMastered: ${masteredIndices.size}/${allFlashcardsActive.length}\nRemaining: ${unmasteredCards.length} cards`);
             } catch (e) {
                 alert('Invalid sync code. Please check and try again.');
             }
