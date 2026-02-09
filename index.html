@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>German Flashcards</title>
     <style>
         * {
@@ -18,30 +20,51 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             padding: 20px;
+            padding-top: 40px;
             color: white;
         }
 
         h1 {
-            margin-bottom: 10px;
-            font-size: 1.8rem;
+            margin-bottom: 8px;
+            font-size: 1.6rem;
             font-weight: 300;
         }
 
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .mode-btn {
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            cursor: pointer;
+        }
+
+        .mode-btn.active {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.6);
+        }
+
         .progress {
-            margin-bottom: 30px;
-            font-size: 0.9rem;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
             opacity: 0.7;
         }
 
         .card-container {
             perspective: 1000px;
             width: 100%;
-            max-width: 400px;
-            height: 250px;
+            max-width: 380px;
+            height: 280px;
             cursor: pointer;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .card {
@@ -66,7 +89,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 30px;
+            padding: 25px;
             text-align: center;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
@@ -75,41 +98,78 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
+        .card-front.reverse-mode {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
         .card-back {
             background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             transform: rotateY(180deg);
         }
 
+        .card-back.reverse-mode {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
         .card-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 2px;
             opacity: 0.8;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .card-word {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 600;
             line-height: 1.3;
         }
 
-        .card-hint {
+        .card-example {
             font-size: 0.85rem;
-            opacity: 0.7;
-            margin-top: 20px;
+            opacity: 0.85;
+            margin-top: 12px;
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .card-hint {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-top: 15px;
+        }
+
+        .audio-btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.15);
+            color: white;
+            cursor: pointer;
+        }
+
+        .difficulty-indicator {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.2);
         }
 
         .controls {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         button {
-            padding: 12px 30px;
-            font-size: 1rem;
+            padding: 12px 25px;
+            font-size: 0.95rem;
             border: none;
             border-radius: 30px;
             cursor: pointer;
@@ -142,73 +202,91 @@
             color: white;
         }
 
+        .stats {
+            margin-top: 20px;
+            text-align: center;
+        }
+
         .score {
-            margin-top: 30px;
             font-size: 0.9rem;
             opacity: 0.7;
         }
 
         .percentage {
             font-size: 1.1rem;
-            margin-top: 8px;
+            margin-top: 6px;
             font-weight: 500;
         }
 
         .round-info {
-            font-size: 0.85rem;
-            margin-top: 8px;
+            font-size: 0.8rem;
+            margin-top: 6px;
             opacity: 0.7;
             color: #ffd700;
         }
 
+        .btn-small {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 0.8rem;
+            padding: 8px 16px;
+        }
+
         .btn-restart {
             background: rgba(255, 107, 107, 0.3);
-            color: white;
             border: 1px solid rgba(255, 107, 107, 0.5);
-            font-size: 0.85rem;
-            padding: 10px 20px;
         }
 
         .btn-sync {
             background: rgba(100, 150, 255, 0.3);
-            color: white;
             border: 1px solid rgba(100, 150, 255, 0.5);
-            font-size: 0.85rem;
-            padding: 10px 20px;
         }
 
         .instructions {
-            margin-top: 20px;
-            font-size: 0.8rem;
-            opacity: 0.5;
+            margin-top: 15px;
+            font-size: 0.75rem;
+            opacity: 0.4;
             text-align: center;
         }
 
         @media (max-width: 500px) {
             .card-word {
-                font-size: 1.4rem;
+                font-size: 1.3rem;
             }
-
+            .card-example {
+                font-size: 0.8rem;
+            }
             .card-container {
-                height: 220px;
+                height: 260px;
             }
         }
     </style>
 </head>
 <body>
     <h1>German Flashcards</h1>
+
+    <div class="mode-toggle">
+        <button class="mode-btn active" id="mode-normal" onclick="setMode('normal')">German → English</button>
+        <button class="mode-btn" id="mode-reverse" onclick="setMode('reverse')">English → German</button>
+    </div>
+
     <p class="progress">Card <span id="current">1</span> of <span id="total">0</span></p>
 
     <div class="card-container" onclick="flipCard()">
         <div class="card" id="card">
-            <div class="card-face card-front">
-                <div class="card-label">German</div>
-                <div class="card-word" id="german-word"></div>
+            <div class="card-face card-front" id="card-front">
+                <div class="difficulty-indicator" id="difficulty">New</div>
+                <div class="card-label" id="front-label">German</div>
+                <div class="card-word" id="front-word"></div>
+                <div class="card-example" id="front-example"></div>
+                <button class="audio-btn" onclick="event.stopPropagation(); speakWord()">🔊 Listen</button>
                 <div class="card-hint">tap to flip</div>
             </div>
-            <div class="card-face card-back">
-                <div class="card-label">English</div>
-                <div class="card-word" id="english-word"></div>
+            <div class="card-face card-back" id="card-back">
+                <div class="card-label" id="back-label">English</div>
+                <div class="card-word" id="back-word"></div>
+                <div class="card-example" id="back-example"></div>
             </div>
         </div>
     </div>
@@ -218,175 +296,175 @@
         <button class="btn-knew-it" onclick="markAndNext(true)">Knew It</button>
     </div>
 
-    <div class="controls" style="margin-top: 15px;">
+    <div class="controls" style="margin-top: 12px;">
         <button class="btn-shuffle" onclick="shuffleCards()">Shuffle</button>
         <button class="btn-next" onclick="nextCard()">Skip</button>
     </div>
 
-    <p class="score">Score: <span id="correct">0</span> / <span id="attempted">0</span></p>
-    <p class="percentage" id="percentage"></p>
-    <p class="round-info" id="round-info"></p>
-
-    <div class="controls" style="margin-top: 15px;">
-        <button class="btn-restart" onclick="fullRestart()">Start Over (All Cards)</button>
+    <div class="stats">
+        <p class="score">Score: <span id="correct">0</span> / <span id="attempted">0</span></p>
+        <p class="percentage" id="percentage"></p>
+        <p class="round-info" id="round-info"></p>
     </div>
 
     <div class="controls" style="margin-top: 15px;">
-        <button class="btn-sync" onclick="getSyncCode()">Get Sync Code</button>
-        <button class="btn-sync" onclick="loadSyncCode()">Load Code</button>
+        <button class="btn-small btn-restart" onclick="fullRestart()">Start Over</button>
+        <button class="btn-small btn-sync" onclick="getSyncCode()">Get Code</button>
+        <button class="btn-small btn-sync" onclick="loadSyncCode()">Load Code</button>
     </div>
 
-    <p class="instructions">Press spacebar to flip, arrow keys to navigate</p>
+    <p class="instructions">Spacebar to flip • Arrow keys to navigate • K/D for knew/didn't know</p>
 
     <script>
         const allFlashcards = [
-            { german: "Die Stimme", english: "the voice" },
-            { german: "Erkennen", english: "to recognise" },
-            { german: "Der Schriftsteller", english: "the writer" },
-            { german: "mindestens", english: "at least / minimum" },
-            { german: "Der Brief", english: "the letter" },
-            { german: "Die Ehre", english: "the honour" },
-            { german: "Die Linie", english: "the line" },
-            { german: "Die Verabredung", english: "social gathering" },
-            { german: "Sich verabreden", english: "arranging to meet" },
-            { german: "Die Aussage", english: "statement" },
-            { german: "wahrscheinlich", english: "probably" },
-            { german: "Dennoch", english: "nonetheless" },
-            { german: "Das Dorf", english: "the village" },
-            { german: "Der Nebel", english: "the fog" },
-            { german: "Die Finsternis", english: "the darkness" },
-            { german: "umgeben", english: "to surround" },
-            { german: "deuten", english: "to indicate" },
-            { german: "andeuten", english: "to suggest / imply" },
-            { german: "führen", english: "to lead / run" },
-            { german: "blicken", english: "to look" },
-            { german: "Das Nachtlager", english: "place to sleep for the night" },
-            { german: "Das Wirthaus", english: "the inn" },
-            { german: "zwar", english: "indeed" },
-            { german: "vermieten", english: "to rent" },
-            { german: "äußerst", english: "extremely" },
-            { german: "überrascht", english: "surprised" },
-            { german: "verwirrt", english: "confused" },
-            { german: "einige", english: "some" },
-            { german: "holen", english: "to get / fetch" },
-            { german: "Der Dachboden", english: "the attic" },
-            { german: "prüfen", english: "to examine" },
-            { german: "einschlafen", english: "to fall asleep" },
-            { german: "darauf", english: "thereafter" },
-            { german: "aufwachen", english: "to wake up" },
-            { german: "städtisch", english: "urban" },
-            { german: "anziehen", english: "to put on" },
-            { german: "schmal", english: "narrow" },
-            { german: "Der Wirt", english: "the innkeeper" },
-            { german: "herumdrehen", english: "to pull around" },
-            { german: "stellen", english: "to place" },
-            { german: "vorstellen sich", english: "to introduce themselves" },
-            { german: "höflich", english: "politely" },
-            { german: "Der Besitz", english: "the property" },
-            { german: "übernachten", english: "to stay / to spend the night" },
-            { german: "gewissermaßen", english: "in a sense" },
-            { german: "Die Erlaubnis", english: "the permission" },
-            { german: "gräfliche", english: "countly" },
-            { german: "solche", english: "such" },
-            { german: "vorzeigen", english: "to show / exhibit / produce" },
-            { german: "wenigstens", english: "at least" },
-            { german: "Die Haare", english: "the hair" },
-            { german: "aufrichten", english: "to erect" },
-            { german: "allerdings", english: "indeed / certainly / though" },
-            { german: "während", english: "while / during" },
-            { german: "davon", english: "thereof / from that" },
-            { german: "überzeugen", english: "to convince" },
-            { german: "Der Spott", english: "the mockery" },
-            { german: "schieben", english: "to push / shove" },
-            { german: "übrigbleiben", english: "to remain / to be left over" },
-            { german: "rufen", english: "to call / to shout" },
-            { german: "treten", english: "to step" },
-            { german: "Der Schritt", english: "the step" },
-            { german: "möglich", english: "possible" },
-            { german: "gleichmütig", english: "serenely" },
-            { german: "geraten", english: "to get" },
-            { german: "verlangen", english: "to demand / to require" },
-            { german: "Die Behörde", english: "the authority" },
-            { german: "deshalb", english: "therefore" },
-            { german: "mitteilen", english: "to inform" },
-            { german: "Das Gebiet", english: "the territory" },
-            { german: "verlassen", english: "to leave" },
-            { german: "Genug der Komödie", english: "enough of the comedy" },
-            { german: "auffallend", english: "noticeably / strikingly" },
-            { german: "leise", english: "quietly / softly" },
-            { german: "ziehen", english: "to pull" },
-            { german: "Das Benehmen", english: "the behaviour / conduct" },
-            { german: "zurückkommen", english: "to come back" },
-            { german: "zeugen", english: "to testify" },
-            { german: "soweit", english: "so far / insofar as" },
-            { german: "sonst", english: "otherwise" },
-            { german: "kommen lassen", english: "to let come" },
-            { german: "Der Marsch", english: "the march" },
-            { german: "entgehen", english: "to escape / to miss" },
-            { german: "erst", english: "only / first" },
-            { german: "ankommen", english: "to arrive" },
-            { german: "melden", english: "to report / to register" },
-            { german: "Die Belehrung", english: "the instruction" },
-            { german: "Die Unhöflichkeit", english: "the impoliteness" },
-            { german: "gelinde gesagt", english: "to put it lightly / to say the least" },
-            { german: "drehen", english: "to turn" },
-            { german: "Der Rücken", english: "the back (body)" },
-            { german: "zögernd", english: "hesitantly" },
-            { german: "bald", english: "soon" },
-            { german: "Der Ton", english: "the tone" },
-            { german: "gedämpft", english: "dampened" },
-            { german: "Die Rücksichtnahme", english: "the consideration for others" },
-            { german: "gelten", english: "to apply to" },
-            { german: "verständlich", english: "understandable" },
-            { german: "anfragen", english: "to ask (formally / officially)" },
-            { german: "vorzüglich", english: "excellent" },
-            { german: "einrichten", english: "to set up / to furnish" },
-            { german: "erwarten", english: "to expect" },
-            { german: "freilich", english: "of course" },
-            { german: "Die Verschlafenheit", english: "the sleepiness" },
-            { german: "schonen", english: "to spare / to conserve" },
-            { german: "darum", english: "therefore" },
-            { german: "ob", english: "whether" },
-            { german: "zulassen", english: "to allow" },
-            { german: "beschließen", english: "to decide on" },
-            { german: "der Sinn", english: "the sense" },
-            { german: "scheu", english: "shy" },
-            { german: "zusammenrücken", english: "to move closer together" },
-            { german: "besprechen", english: "to discuss" },
-            { german: "die Ankunft", english: "the arrival" },
-            { german: "mächtig", english: "powerful" },
-            { german: "Die Gestalt", english: "the form" },
-            { german: "berichten", english: "to report" },
-            { german: "winzig", english: "tiny" },
-            { german: "recht", english: "pretty / quite" },
-            { german: "zerlumpt", english: "ragged" },
-            { german: "verdächtig", english: "suspicious" },
-            { german: "offenbar", english: "apparently" },
-            { german: "erzählen", english: "to tell / to relate" },
-            { german: "Das Verhör", english: "the interrogation" },
-            { german: "ungnädig", english: "ungracious" },
-            { german: "Die Androhung", english: "the threat" },
-            { german: "Die Grafschaft", english: "the county / shire" },
-            { german: "behaupten", english: "to claim" },
-            { german: "zumindest", english: "at least" },
-            { german: "Die Behauptung", english: "the claim" },
-            { german: "erkundigen", english: "to inquire" },
-            { german: "beantragen", english: "to apply for" },
-            { german: "ausgeben", english: "to spend out" },
-            { german: "Zeit verbringen", english: "to spend time" },
-            { german: "verkaufen", english: "to sell" },
-            { german: "überlegen", english: "to think about" },
-            { german: "besuchen", english: "to visit (a place or person)" },
-            { german: "besichtigen", english: "to visit and look at in detail" },
-            { german: "abholen", english: "to collect" },
-            { german: "vor kurzem / in letzter Zeit", english: "recently" },
-            { german: "die Lieferung", english: "the delivery" },
-            { german: "Geld ausgeben", english: "to spend money" },
-            { german: "Vor allem", english: "mainly / most of all / first of all" },
-            { german: "Das heißt", english: "that means" },
-            { german: "Stehen auf", english: "to be really into something" }
+            { german: "Die Stimme", english: "the voice", exampleDe: "Ihre Stimme klingt müde.", exampleEn: "Her voice sounds tired." },
+            { german: "Erkennen", english: "to recognise", exampleDe: "Ich erkenne dich kaum wieder.", exampleEn: "I barely recognise you." },
+            { german: "Der Schriftsteller", english: "the writer", exampleDe: "Er ist ein berühmter Schriftsteller.", exampleEn: "He is a famous writer." },
+            { german: "mindestens", english: "at least / minimum", exampleDe: "Das dauert mindestens eine Stunde.", exampleEn: "That takes at least an hour." },
+            { german: "Der Brief", english: "the letter", exampleDe: "Ich habe deinen Brief bekommen.", exampleEn: "I received your letter." },
+            { german: "Die Ehre", english: "the honour", exampleDe: "Es ist mir eine Ehre.", exampleEn: "It is an honour for me." },
+            { german: "Die Linie", english: "the line", exampleDe: "Folge der roten Linie.", exampleEn: "Follow the red line." },
+            { german: "Die Verabredung", english: "social gathering", exampleDe: "Ich habe eine Verabredung um acht.", exampleEn: "I have an appointment at eight." },
+            { german: "Sich verabreden", english: "arranging to meet", exampleDe: "Wir verabreden uns für morgen.", exampleEn: "We're arranging to meet tomorrow." },
+            { german: "Die Aussage", english: "statement", exampleDe: "Seine Aussage war sehr klar.", exampleEn: "His statement was very clear." },
+            { german: "wahrscheinlich", english: "probably", exampleDe: "Es regnet wahrscheinlich morgen.", exampleEn: "It will probably rain tomorrow." },
+            { german: "Dennoch", english: "nonetheless", exampleDe: "Es war schwer, dennoch haben wir es geschafft.", exampleEn: "It was hard, nonetheless we managed." },
+            { german: "Das Dorf", english: "the village", exampleDe: "Das Dorf liegt in den Bergen.", exampleEn: "The village lies in the mountains." },
+            { german: "Der Nebel", english: "the fog", exampleDe: "Der Nebel ist sehr dicht heute.", exampleEn: "The fog is very thick today." },
+            { german: "Die Finsternis", english: "the darkness", exampleDe: "Die Finsternis umgab uns.", exampleEn: "The darkness surrounded us." },
+            { german: "umgeben", english: "to surround", exampleDe: "Bäume umgeben das Haus.", exampleEn: "Trees surround the house." },
+            { german: "deuten", english: "to indicate", exampleDe: "Alles deutet auf Erfolg.", exampleEn: "Everything indicates success." },
+            { german: "andeuten", english: "to suggest / imply", exampleDe: "Er deutete an, dass er geht.", exampleEn: "He implied that he's leaving." },
+            { german: "führen", english: "to lead / run", exampleDe: "Sie führt das Unternehmen.", exampleEn: "She runs the company." },
+            { german: "blicken", english: "to look", exampleDe: "Er blickte aus dem Fenster.", exampleEn: "He looked out the window." },
+            { german: "Das Nachtlager", english: "place to sleep for the night", exampleDe: "Wir suchten ein Nachtlager.", exampleEn: "We looked for a place to sleep." },
+            { german: "Das Wirthaus", english: "the inn", exampleDe: "Das Wirthaus war voll.", exampleEn: "The inn was full." },
+            { german: "zwar", english: "indeed", exampleDe: "Er ist zwar jung, aber klug.", exampleEn: "He is indeed young, but clever." },
+            { german: "vermieten", english: "to rent", exampleDe: "Sie vermietet ihre Wohnung.", exampleEn: "She rents out her apartment." },
+            { german: "äußerst", english: "extremely", exampleDe: "Das ist äußerst wichtig.", exampleEn: "That is extremely important." },
+            { german: "überrascht", english: "surprised", exampleDe: "Ich war sehr überrascht.", exampleEn: "I was very surprised." },
+            { german: "verwirrt", english: "confused", exampleDe: "Er sah verwirrt aus.", exampleEn: "He looked confused." },
+            { german: "einige", english: "some", exampleDe: "Einige Leute kamen spät.", exampleEn: "Some people came late." },
+            { german: "holen", english: "to get / fetch", exampleDe: "Ich hole dir ein Glas Wasser.", exampleEn: "I'll get you a glass of water." },
+            { german: "Der Dachboden", english: "the attic", exampleDe: "Die alten Fotos sind auf dem Dachboden.", exampleEn: "The old photos are in the attic." },
+            { german: "prüfen", english: "to examine", exampleDe: "Der Arzt prüft die Ergebnisse.", exampleEn: "The doctor examines the results." },
+            { german: "einschlafen", english: "to fall asleep", exampleDe: "Ich kann nicht einschlafen.", exampleEn: "I can't fall asleep." },
+            { german: "darauf", english: "thereafter", exampleDe: "Kurz darauf ging er.", exampleEn: "Shortly thereafter he left." },
+            { german: "aufwachen", english: "to wake up", exampleDe: "Ich wache immer früh auf.", exampleEn: "I always wake up early." },
+            { german: "städtisch", english: "urban", exampleDe: "Das städtische Leben ist hektisch.", exampleEn: "Urban life is hectic." },
+            { german: "anziehen", english: "to put on", exampleDe: "Zieh deinen Mantel an.", exampleEn: "Put on your coat." },
+            { german: "schmal", english: "narrow", exampleDe: "Die Straße ist sehr schmal.", exampleEn: "The street is very narrow." },
+            { german: "Der Wirt", english: "the innkeeper", exampleDe: "Der Wirt begrüßte uns freundlich.", exampleEn: "The innkeeper greeted us warmly." },
+            { german: "herumdrehen", english: "to pull around", exampleDe: "Er drehte sich herum.", exampleEn: "He turned around." },
+            { german: "stellen", english: "to place", exampleDe: "Stell die Tasse auf den Tisch.", exampleEn: "Place the cup on the table." },
+            { german: "vorstellen sich", english: "to introduce themselves", exampleDe: "Darf ich mich vorstellen?", exampleEn: "May I introduce myself?" },
+            { german: "höflich", english: "politely", exampleDe: "Sie fragte höflich nach dem Weg.", exampleEn: "She politely asked for directions." },
+            { german: "Der Besitz", english: "the property", exampleDe: "Das ist privater Besitz.", exampleEn: "This is private property." },
+            { german: "übernachten", english: "to stay / to spend the night", exampleDe: "Wir übernachten im Hotel.", exampleEn: "We're staying at a hotel." },
+            { german: "gewissermaßen", english: "in a sense", exampleDe: "Er hat gewissermaßen recht.", exampleEn: "He is right in a sense." },
+            { german: "Die Erlaubnis", english: "the permission", exampleDe: "Ich brauche deine Erlaubnis.", exampleEn: "I need your permission." },
+            { german: "gräfliche", english: "countly", exampleDe: "Das gräfliche Anwesen ist alt.", exampleEn: "The count's estate is old." },
+            { german: "solche", english: "such", exampleDe: "Solche Dinge passieren.", exampleEn: "Such things happen." },
+            { german: "vorzeigen", english: "to show / exhibit / produce", exampleDe: "Bitte zeigen Sie Ihren Ausweis vor.", exampleEn: "Please show your ID." },
+            { german: "wenigstens", english: "at least", exampleDe: "Ruf wenigstens an.", exampleEn: "At least call." },
+            { german: "Die Haare", english: "the hair", exampleDe: "Ihre Haare sind sehr lang.", exampleEn: "Her hair is very long." },
+            { german: "aufrichten", english: "to erect", exampleDe: "Er richtete sich langsam auf.", exampleEn: "He slowly straightened up." },
+            { german: "allerdings", english: "indeed / certainly / though", exampleDe: "Das stimmt allerdings.", exampleEn: "That is indeed true." },
+            { german: "während", english: "while / during", exampleDe: "Während ich schlief, regnete es.", exampleEn: "While I slept, it rained." },
+            { german: "davon", english: "thereof / from that", exampleDe: "Ich habe davon gehört.", exampleEn: "I heard about that." },
+            { german: "überzeugen", english: "to convince", exampleDe: "Kann ich dich überzeugen?", exampleEn: "Can I convince you?" },
+            { german: "Der Spott", english: "the mockery", exampleDe: "Sein Spott war verletzend.", exampleEn: "His mockery was hurtful." },
+            { german: "schieben", english: "to push / shove", exampleDe: "Schieb den Tisch zur Seite.", exampleEn: "Push the table aside." },
+            { german: "übrigbleiben", english: "to remain / to be left over", exampleDe: "Was bleibt übrig?", exampleEn: "What remains?" },
+            { german: "rufen", english: "to call / to shout", exampleDe: "Sie rief seinen Namen.", exampleEn: "She called his name." },
+            { german: "treten", english: "to step", exampleDe: "Bitte treten Sie ein.", exampleEn: "Please step in." },
+            { german: "Der Schritt", english: "the step", exampleDe: "Ein kleiner Schritt für mich.", exampleEn: "A small step for me." },
+            { german: "möglich", english: "possible", exampleDe: "Ist das möglich?", exampleEn: "Is that possible?" },
+            { german: "gleichmütig", english: "serenely", exampleDe: "Er blieb gleichmütig.", exampleEn: "He remained serene." },
+            { german: "geraten", english: "to get", exampleDe: "Wir sind in Schwierigkeiten geraten.", exampleEn: "We got into trouble." },
+            { german: "verlangen", english: "to demand / to require", exampleDe: "Sie verlangt eine Erklärung.", exampleEn: "She demands an explanation." },
+            { german: "Die Behörde", english: "the authority", exampleDe: "Die Behörde hat entschieden.", exampleEn: "The authority has decided." },
+            { german: "deshalb", english: "therefore", exampleDe: "Deshalb bin ich hier.", exampleEn: "Therefore I am here." },
+            { german: "mitteilen", english: "to inform", exampleDe: "Ich muss dir etwas mitteilen.", exampleEn: "I have to inform you of something." },
+            { german: "Das Gebiet", english: "the territory", exampleDe: "Das Gebiet ist geschützt.", exampleEn: "The territory is protected." },
+            { german: "verlassen", english: "to leave", exampleDe: "Wann hast du das Haus verlassen?", exampleEn: "When did you leave the house?" },
+            { german: "Genug der Komödie", english: "enough of the comedy", exampleDe: "Genug der Komödie, sag die Wahrheit.", exampleEn: "Enough of this comedy, tell the truth." },
+            { german: "auffallend", english: "noticeably / strikingly", exampleDe: "Sie war auffallend schön.", exampleEn: "She was strikingly beautiful." },
+            { german: "leise", english: "quietly / softly", exampleDe: "Sprich bitte leise.", exampleEn: "Please speak quietly." },
+            { german: "ziehen", english: "to pull", exampleDe: "Zieh an der Tür.", exampleEn: "Pull the door." },
+            { german: "Das Benehmen", english: "the behaviour / conduct", exampleDe: "Sein Benehmen war unhöflich.", exampleEn: "His behaviour was rude." },
+            { german: "zurückkommen", english: "to come back", exampleDe: "Wann kommst du zurück?", exampleEn: "When are you coming back?" },
+            { german: "zeugen", english: "to testify", exampleDe: "Er musste vor Gericht zeugen.", exampleEn: "He had to testify in court." },
+            { german: "soweit", english: "so far / insofar as", exampleDe: "Soweit ich weiß, stimmt das.", exampleEn: "As far as I know, that's correct." },
+            { german: "sonst", english: "otherwise", exampleDe: "Beeil dich, sonst kommen wir zu spät.", exampleEn: "Hurry, otherwise we'll be late." },
+            { german: "kommen lassen", english: "to let come", exampleDe: "Lass ihn kommen.", exampleEn: "Let him come." },
+            { german: "Der Marsch", english: "the march", exampleDe: "Der Marsch war lang.", exampleEn: "The march was long." },
+            { german: "entgehen", english: "to escape / to miss", exampleDe: "Das ist mir entgangen.", exampleEn: "I missed that." },
+            { german: "erst", english: "only / first", exampleDe: "Ich komme erst morgen.", exampleEn: "I'm only coming tomorrow." },
+            { german: "ankommen", english: "to arrive", exampleDe: "Wann kommst du an?", exampleEn: "When do you arrive?" },
+            { german: "melden", english: "to report / to register", exampleDe: "Bitte melden Sie sich am Empfang.", exampleEn: "Please register at reception." },
+            { german: "Die Belehrung", english: "the instruction", exampleDe: "Die Belehrung war hilfreich.", exampleEn: "The instruction was helpful." },
+            { german: "Die Unhöflichkeit", english: "the impoliteness", exampleDe: "Seine Unhöflichkeit überraschte mich.", exampleEn: "His impoliteness surprised me." },
+            { german: "gelinde gesagt", english: "to put it lightly / to say the least", exampleDe: "Das war, gelinde gesagt, ein Fehler.", exampleEn: "That was, to put it lightly, a mistake." },
+            { german: "drehen", english: "to turn", exampleDe: "Dreh den Schlüssel nach rechts.", exampleEn: "Turn the key to the right." },
+            { german: "Der Rücken", english: "the back (body)", exampleDe: "Mein Rücken tut weh.", exampleEn: "My back hurts." },
+            { german: "zögernd", english: "hesitantly", exampleDe: "Er antwortete zögernd.", exampleEn: "He answered hesitantly." },
+            { german: "bald", english: "soon", exampleDe: "Bis bald!", exampleEn: "See you soon!" },
+            { german: "Der Ton", english: "the tone", exampleDe: "Sein Ton war freundlich.", exampleEn: "His tone was friendly." },
+            { german: "gedämpft", english: "dampened", exampleDe: "Die Musik war gedämpft.", exampleEn: "The music was muted." },
+            { german: "Die Rücksichtnahme", english: "the consideration for others", exampleDe: "Danke für Ihre Rücksichtnahme.", exampleEn: "Thank you for your consideration." },
+            { german: "gelten", english: "to apply to", exampleDe: "Diese Regel gilt für alle.", exampleEn: "This rule applies to everyone." },
+            { german: "verständlich", english: "understandable", exampleDe: "Das ist verständlich.", exampleEn: "That's understandable." },
+            { german: "anfragen", english: "to ask (formally / officially)", exampleDe: "Ich werde offiziell anfragen.", exampleEn: "I will inquire officially." },
+            { german: "vorzüglich", english: "excellent", exampleDe: "Das Essen war vorzüglich.", exampleEn: "The food was excellent." },
+            { german: "einrichten", english: "to set up / to furnish", exampleDe: "Wir richten die Wohnung ein.", exampleEn: "We're furnishing the apartment." },
+            { german: "erwarten", english: "to expect", exampleDe: "Ich erwarte dich um sechs.", exampleEn: "I expect you at six." },
+            { german: "freilich", english: "of course", exampleDe: "Das ist freilich wahr.", exampleEn: "That is of course true." },
+            { german: "Die Verschlafenheit", english: "the sleepiness", exampleDe: "Die Verschlafenheit war ihm anzusehen.", exampleEn: "His sleepiness was visible." },
+            { german: "schonen", english: "to spare / to conserve", exampleDe: "Du solltest deine Kräfte schonen.", exampleEn: "You should conserve your energy." },
+            { german: "darum", english: "therefore", exampleDe: "Darum geht es nicht.", exampleEn: "That's not what it's about." },
+            { german: "ob", english: "whether", exampleDe: "Ich weiß nicht, ob er kommt.", exampleEn: "I don't know whether he's coming." },
+            { german: "zulassen", english: "to allow", exampleDe: "Das kann ich nicht zulassen.", exampleEn: "I cannot allow that." },
+            { german: "beschließen", english: "to decide on", exampleDe: "Wir haben beschlossen zu gehen.", exampleEn: "We decided to leave." },
+            { german: "der Sinn", english: "the sense", exampleDe: "Das macht keinen Sinn.", exampleEn: "That makes no sense." },
+            { german: "scheu", english: "shy", exampleDe: "Das Kind ist sehr scheu.", exampleEn: "The child is very shy." },
+            { german: "zusammenrücken", english: "to move closer together", exampleDe: "Können wir zusammenrücken?", exampleEn: "Can we move closer together?" },
+            { german: "besprechen", english: "to discuss", exampleDe: "Wir müssen das besprechen.", exampleEn: "We need to discuss this." },
+            { german: "die Ankunft", english: "the arrival", exampleDe: "Die Ankunft ist um zehn Uhr.", exampleEn: "The arrival is at ten o'clock." },
+            { german: "mächtig", english: "powerful", exampleDe: "Der König war sehr mächtig.", exampleEn: "The king was very powerful." },
+            { german: "Die Gestalt", english: "the form", exampleDe: "Eine dunkle Gestalt erschien.", exampleEn: "A dark figure appeared." },
+            { german: "berichten", english: "to report", exampleDe: "Die Zeitung berichtet darüber.", exampleEn: "The newspaper reports on it." },
+            { german: "winzig", english: "tiny", exampleDe: "Das Haus war winzig.", exampleEn: "The house was tiny." },
+            { german: "recht", english: "pretty / quite", exampleDe: "Das ist recht interessant.", exampleEn: "That's quite interesting." },
+            { german: "zerlumpt", english: "ragged", exampleDe: "Seine Kleidung war zerlumpt.", exampleEn: "His clothes were ragged." },
+            { german: "verdächtig", english: "suspicious", exampleDe: "Das klingt verdächtig.", exampleEn: "That sounds suspicious." },
+            { german: "offenbar", english: "apparently", exampleDe: "Offenbar hat er recht.", exampleEn: "Apparently he's right." },
+            { german: "erzählen", english: "to tell / to relate", exampleDe: "Erzähl mir eine Geschichte.", exampleEn: "Tell me a story." },
+            { german: "Das Verhör", english: "the interrogation", exampleDe: "Das Verhör dauerte Stunden.", exampleEn: "The interrogation lasted hours." },
+            { german: "ungnädig", english: "ungracious", exampleDe: "Seine Antwort war ungnädig.", exampleEn: "His answer was ungracious." },
+            { german: "Die Androhung", english: "the threat", exampleDe: "Die Androhung war ernst.", exampleEn: "The threat was serious." },
+            { german: "Die Grafschaft", english: "the county / shire", exampleDe: "Die Grafschaft ist groß.", exampleEn: "The county is large." },
+            { german: "behaupten", english: "to claim", exampleDe: "Er behauptet, unschuldig zu sein.", exampleEn: "He claims to be innocent." },
+            { german: "zumindest", english: "at least", exampleDe: "Zumindest haben wir es versucht.", exampleEn: "At least we tried." },
+            { german: "Die Behauptung", english: "the claim", exampleDe: "Diese Behauptung ist falsch.", exampleEn: "This claim is false." },
+            { german: "erkundigen", english: "to inquire", exampleDe: "Ich werde mich erkundigen.", exampleEn: "I will inquire." },
+            { german: "beantragen", english: "to apply for", exampleDe: "Ich möchte ein Visum beantragen.", exampleEn: "I want to apply for a visa." },
+            { german: "ausgeben", english: "to spend out", exampleDe: "Er gibt viel Geld aus.", exampleEn: "He spends a lot of money." },
+            { german: "Zeit verbringen", english: "to spend time", exampleDe: "Wir verbringen Zeit zusammen.", exampleEn: "We spend time together." },
+            { german: "verkaufen", english: "to sell", exampleDe: "Er verkauft sein Auto.", exampleEn: "He's selling his car." },
+            { german: "überlegen", english: "to think about", exampleDe: "Ich muss darüber überlegen.", exampleEn: "I need to think about it." },
+            { german: "besuchen", english: "to visit (a place or person)", exampleDe: "Ich besuche meine Oma.", exampleEn: "I'm visiting my grandma." },
+            { german: "besichtigen", english: "to visit and look at in detail", exampleDe: "Wir besichtigen das Schloss.", exampleEn: "We're touring the castle." },
+            { german: "abholen", english: "to collect", exampleDe: "Ich hole dich um acht ab.", exampleEn: "I'll pick you up at eight." },
+            { german: "vor kurzem / in letzter Zeit", english: "recently", exampleDe: "Ich habe ihn vor kurzem gesehen.", exampleEn: "I saw him recently." },
+            { german: "die Lieferung", english: "the delivery", exampleDe: "Die Lieferung kommt morgen.", exampleEn: "The delivery arrives tomorrow." },
+            { german: "Geld ausgeben", english: "to spend money", exampleDe: "Sie gibt gern Geld aus.", exampleEn: "She likes to spend money." },
+            { german: "Vor allem", english: "mainly / most of all / first of all", exampleDe: "Vor allem brauchen wir Zeit.", exampleEn: "Most of all, we need time." },
+            { german: "Das heißt", english: "that means", exampleDe: "Das heißt, wir müssen warten.", exampleEn: "That means we have to wait." },
+            { german: "Stehen auf", english: "to be really into something", exampleDe: "Ich stehe auf Jazz-Musik.", exampleEn: "I'm really into jazz music." }
         ];
 
+        // State
         let cards = [];
         let currentIndex = 0;
         let correct = 0;
@@ -395,7 +473,12 @@
         let roundNumber = 1;
         let answeredThisRound = 0;
         let totalCardsThisRound = 0;
-        let masteredIndices = new Set(); // Track which cards (by original index) have been mastered
+        let masteredIndices = new Set();
+        let reverseMode = false;
+
+        // Spaced repetition: track difficulty for each card (1-5 boxes)
+        // Box 1 = new/difficult, Box 5 = well known
+        let cardBoxes = {};
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -405,6 +488,29 @@
             return array;
         }
 
+        // Spaced repetition: weight cards by box (lower box = more likely to appear)
+        function getWeightedCards(cardSet) {
+            let weighted = [];
+            cardSet.forEach(card => {
+                const box = cardBoxes[card.originalIndex] || 1;
+                // Box 1: 5 copies, Box 2: 4 copies, etc.
+                const copies = Math.max(1, 6 - box);
+                for (let i = 0; i < copies; i++) {
+                    weighted.push({...card});
+                }
+            });
+            return shuffleArray(weighted);
+        }
+
+        function setMode(mode) {
+            reverseMode = (mode === 'reverse');
+            document.getElementById('mode-normal').classList.toggle('active', !reverseMode);
+            document.getElementById('mode-reverse').classList.toggle('active', reverseMode);
+            document.getElementById('card-front').classList.toggle('reverse-mode', reverseMode);
+            document.getElementById('card-back').classList.toggle('reverse-mode', reverseMode);
+            showCard();
+        }
+
         function startRound(cardSet, isNewFullRound = false) {
             if (isNewFullRound) {
                 roundNumber = 1;
@@ -412,8 +518,15 @@
                 attempted = 0;
                 masteredIndices = new Set();
             }
-            // Add original index to each card for tracking
-            cards = shuffleArray(cardSet.map(c => ({...c})));
+            // Use spaced repetition weighting
+            cards = getWeightedCards(cardSet);
+            // Remove duplicates for this round (keep first occurrence)
+            const seen = new Set();
+            cards = cards.filter(c => {
+                if (seen.has(c.originalIndex)) return false;
+                seen.add(c.originalIndex);
+                return true;
+            });
             missedCards = [];
             currentIndex = 0;
             answeredThisRound = 0;
@@ -428,6 +541,7 @@
         }
 
         function fullRestart() {
+            cardBoxes = {}; // Reset spaced repetition
             const cardsWithIndex = allFlashcards.map((c, i) => ({...c, originalIndex: i}));
             startRound(cardsWithIndex, true);
         }
@@ -436,17 +550,55 @@
             const card = document.getElementById('card');
             card.classList.remove('flipped');
 
-            document.getElementById('german-word').textContent = cards[currentIndex].german;
-            document.getElementById('english-word').textContent = cards[currentIndex].english;
+            const currentCard = cards[currentIndex];
+            const box = cardBoxes[currentCard.originalIndex] || 1;
+            const boxLabels = ['New', 'Learning', 'Familiar', 'Good', 'Mastered'];
+            document.getElementById('difficulty').textContent = boxLabels[box - 1];
+
+            if (reverseMode) {
+                // English on front, German on back
+                document.getElementById('front-label').textContent = 'English';
+                document.getElementById('front-word').textContent = currentCard.english;
+                document.getElementById('front-example').textContent = currentCard.exampleEn || '';
+                document.getElementById('back-label').textContent = 'German';
+                document.getElementById('back-word').textContent = currentCard.german;
+                document.getElementById('back-example').textContent = currentCard.exampleDe || '';
+            } else {
+                // German on front, English on back
+                document.getElementById('front-label').textContent = 'German';
+                document.getElementById('front-word').textContent = currentCard.german;
+                document.getElementById('front-example').textContent = currentCard.exampleDe || '';
+                document.getElementById('back-label').textContent = 'English';
+                document.getElementById('back-word').textContent = currentCard.english;
+                document.getElementById('back-example').textContent = currentCard.exampleEn || '';
+            }
+
             document.getElementById('current').textContent = currentIndex + 1;
             document.getElementById('total').textContent = cards.length;
+        }
+
+        function speakWord() {
+            const currentCard = cards[currentIndex];
+            const textToSpeak = reverseMode ? currentCard.english : currentCard.german;
+            const lang = reverseMode ? 'en-GB' : 'de-DE';
+
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = lang;
+                utterance.rate = 0.85;
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('Sorry, your browser does not support speech synthesis.');
+            }
         }
 
         function updateDisplay() {
             document.getElementById('correct').textContent = correct;
             document.getElementById('attempted').textContent = attempted;
 
-            // Update percentage
             const pctEl = document.getElementById('percentage');
             if (attempted > 0) {
                 const pct = Math.round((correct / attempted) * 100);
@@ -456,7 +608,6 @@
                 pctEl.textContent = '';
             }
 
-            // Update round info
             const roundEl = document.getElementById('round-info');
             if (roundNumber === 1) {
                 roundEl.textContent = `Round ${roundNumber} • All ${allFlashcards.length} cards`;
@@ -485,25 +636,24 @@
             answeredThisRound++;
 
             const currentCard = cards[currentIndex];
+            const idx = currentCard.originalIndex;
 
             if (knew) {
                 correct++;
-                // Track this card as mastered
-                if (currentCard.originalIndex !== undefined) {
-                    masteredIndices.add(currentCard.originalIndex);
-                }
+                masteredIndices.add(idx);
+                // Move up a box (max 5)
+                cardBoxes[idx] = Math.min(5, (cardBoxes[idx] || 1) + 1);
             } else {
-                // Add to missed cards for next round
                 missedCards.push(currentCard);
+                // Move back to box 1
+                cardBoxes[idx] = 1;
             }
 
             updateDisplay();
 
-            // Check if we've finished this round
             if (answeredThisRound >= cards.length) {
                 finishRound();
             } else {
-                // Move to next unanswered card
                 currentIndex = (currentIndex + 1) % cards.length;
                 showCard();
             }
@@ -511,30 +661,27 @@
 
         function finishRound() {
             if (missedCards.length === 0) {
-                // All done! Show completion message
-                alert(`🎉 Congratulations! You've mastered all the cards!\n\nFinal score: ${correct}/${attempted} (${Math.round((correct/attempted)*100)}%)\n\nTap "Start Over" to practice again.`);
+                alert(`Congratulations! You've mastered all the cards!\n\nFinal score: ${correct}/${attempted} (${Math.round((correct/attempted)*100)}%)\n\nTap "Start Over" to practice again.`);
             } else {
-                // Start review round with missed cards
                 roundNumber++;
                 alert(`Round complete!\n\nYou missed ${missedCards.length} card${missedCards.length > 1 ? 's' : ''}.\n\nStarting Round ${roundNumber} to review them.`);
                 startRound(missedCards, false);
             }
         }
 
-        // Sync code functions
         function getSyncCode() {
             const state = {
-                m: Array.from(masteredIndices), // mastered indices
+                m: Array.from(masteredIndices),
                 c: correct,
-                a: attempted
+                a: attempted,
+                b: cardBoxes // Include spaced repetition data
             };
             const json = JSON.stringify(state);
             const code = btoa(json);
 
-            // Try to copy to clipboard
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(code).then(() => {
-                    alert(`Sync code copied to clipboard!\n\nCode: ${code}\n\nMastered: ${masteredIndices.size}/${allFlashcards.length} cards`);
+                    alert(`Sync code copied!\n\nMastered: ${masteredIndices.size}/${allFlashcards.length} cards`);
                 }).catch(() => {
                     prompt(`Copy this sync code:`, code);
                 });
@@ -551,12 +698,11 @@
                 const json = atob(code.trim());
                 const state = JSON.parse(json);
 
-                // Restore state
                 masteredIndices = new Set(state.m || []);
                 correct = state.c || 0;
                 attempted = state.a || 0;
+                cardBoxes = state.b || {};
 
-                // Start with unmastered cards only
                 const unmasteredCards = allFlashcards
                     .map((c, i) => ({...c, originalIndex: i}))
                     .filter(c => !masteredIndices.has(c.originalIndex));
@@ -568,14 +714,7 @@
                 }
 
                 roundNumber = 1;
-                cards = shuffleArray(unmasteredCards);
-                missedCards = [];
-                currentIndex = 0;
-                answeredThisRound = 0;
-                totalCardsThisRound = cards.length;
-
-                updateDisplay();
-                showCard();
+                startRound(unmasteredCards, false);
 
                 alert(`Progress loaded!\n\nMastered: ${masteredIndices.size}/${allFlashcards.length}\nRemaining: ${unmasteredCards.length} cards`);
             } catch (e) {
@@ -596,6 +735,8 @@
                 markAndNext(true);
             } else if (e.code === 'KeyD') {
                 markAndNext(false);
+            } else if (e.code === 'KeyS') {
+                speakWord();
             }
         });
 
