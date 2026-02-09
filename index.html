@@ -280,7 +280,7 @@
                 <div class="card-label" id="front-label">German</div>
                 <div class="card-word" id="front-word"></div>
                 <div class="card-example" id="front-example"></div>
-                <button class="audio-btn" onclick="event.stopPropagation(); speakWord()">🔊 Listen</button>
+                <button class="audio-btn" onclick="event.stopPropagation(); speakWord()">🔊 Hear Sentence</button>
                 <div class="card-hint">tap to flip</div>
             </div>
             <div class="card-face card-back" id="card-back">
@@ -579,7 +579,8 @@
 
         function speakWord() {
             const currentCard = cards[currentIndex];
-            const textToSpeak = reverseMode ? currentCard.english : currentCard.german;
+            // Read the example sentence instead of just the word
+            const textToSpeak = reverseMode ? (currentCard.exampleEn || currentCard.english) : (currentCard.exampleDe || currentCard.german);
             const lang = reverseMode ? 'en-GB' : 'de-DE';
 
             if ('speechSynthesis' in window) {
@@ -588,11 +589,43 @@
 
                 const utterance = new SpeechSynthesisUtterance(textToSpeak);
                 utterance.lang = lang;
-                utterance.rate = 0.85;
+                utterance.rate = 0.9;
+                utterance.pitch = 0.95;
+
+                // Find the best male voice for the language
+                const voices = speechSynthesis.getVoices();
+                const langCode = reverseMode ? 'en' : 'de';
+
+                // Prefer male voices, then any voice for the language
+                const maleVoice = voices.find(v =>
+                    v.lang.startsWith(langCode) &&
+                    (v.name.toLowerCase().includes('male') ||
+                     v.name.toLowerCase().includes('daniel') ||
+                     v.name.toLowerCase().includes('markus') ||
+                     v.name.toLowerCase().includes('hans') ||
+                     v.name.toLowerCase().includes('stefan') ||
+                     v.name.toLowerCase().includes('yannick') ||
+                     v.name.toLowerCase().includes('martin'))
+                );
+
+                const anyVoice = voices.find(v => v.lang.startsWith(langCode));
+
+                if (maleVoice) {
+                    utterance.voice = maleVoice;
+                } else if (anyVoice) {
+                    utterance.voice = anyVoice;
+                }
+
                 speechSynthesis.speak(utterance);
             } else {
                 alert('Sorry, your browser does not support speech synthesis.');
             }
+        }
+
+        // Pre-load voices (needed for some browsers)
+        if ('speechSynthesis' in window) {
+            speechSynthesis.getVoices();
+            speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
         }
 
         function updateDisplay() {
