@@ -837,6 +837,7 @@
         }
 
         function fullRestart() {
+            clearProgress(); // Clear saved progress
             cardBoxes = {}; // Reset spaced repetition
             const cardsWithIndex = allFlashcardsActive.map((c, i) => ({...c, originalIndex: i}));
             startRound(cardsWithIndex, true);
@@ -986,16 +987,98 @@
                 currentIndex = (currentIndex + 1) % cards.length;
                 showCard();
             }
+
+            saveProgress(); // Auto-save after each answer
         }
 
         function finishRound() {
             if (missedCards.length === 0) {
+                clearProgress(); // Clear saved progress when fully complete
                 alert(`Congratulations! You've mastered all the cards!\n\nFinal score: ${correct}/${attempted} (${Math.round((correct/attempted)*100)}%)\n\nTap "Start Over" to practice again.`);
             } else {
                 roundNumber++;
                 alert(`Round complete!\n\nYou missed ${missedCards.length} card${missedCards.length > 1 ? 's' : ''}.\n\nStarting Round ${roundNumber} to review them.`);
                 startRound(missedCards, false);
             }
+        }
+
+        // Auto-save progress to localStorage
+        function saveProgress() {
+            const state = {
+                deck: currentDeck,
+                cards: cards,
+                currentIndex: currentIndex,
+                correct: correct,
+                attempted: attempted,
+                missedCards: missedCards,
+                roundNumber: roundNumber,
+                answeredThisRound: answeredThisRound,
+                totalCardsThisRound: totalCardsThisRound,
+                masteredIndices: Array.from(masteredIndices),
+                cardBoxes: cardBoxes,
+                reverseMode: reverseMode,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('germanFlashcards', JSON.stringify(state));
+        }
+
+        function loadProgress() {
+            try {
+                const saved = localStorage.getItem('germanFlashcards');
+                if (!saved) return false;
+
+                const state = JSON.parse(saved);
+
+                // Check if save is less than 7 days old
+                if (Date.now() - state.timestamp > 7 * 24 * 60 * 60 * 1000) {
+                    clearProgress();
+                    return false;
+                }
+
+                // Restore deck
+                if (state.deck) {
+                    currentDeck = state.deck;
+                    document.getElementById('deck-select').value = currentDeck;
+                    if (currentDeck === 'conversational') {
+                        allFlashcardsActive = conversationalVocab;
+                    } else if (currentDeck === 'literary') {
+                        allFlashcardsActive = allFlashcards;
+                    } else {
+                        allFlashcardsActive = [...conversationalVocab, ...allFlashcards];
+                    }
+                }
+
+                // Restore state
+                cards = state.cards || [];
+                currentIndex = state.currentIndex || 0;
+                correct = state.correct || 0;
+                attempted = state.attempted || 0;
+                missedCards = state.missedCards || [];
+                roundNumber = state.roundNumber || 1;
+                answeredThisRound = state.answeredThisRound || 0;
+                totalCardsThisRound = state.totalCardsThisRound || cards.length;
+                masteredIndices = new Set(state.masteredIndices || []);
+                cardBoxes = state.cardBoxes || {};
+                reverseMode = state.reverseMode || false;
+
+                if (reverseMode) {
+                    setMode('reverse');
+                }
+
+                if (cards.length > 0) {
+                    updateDisplay();
+                    showCard();
+                    return true;
+                }
+                return false;
+            } catch (e) {
+                clearProgress();
+                return false;
+            }
+        }
+
+        function clearProgress() {
+            localStorage.removeItem('germanFlashcards');
         }
 
         function getSyncCode() {
@@ -1032,7 +1115,7 @@
                 attempted = state.a || 0;
                 cardBoxes = state.b || {};
 
-                const unmasteredCards = allFlashcards
+                const unmasteredCards = allFlashcardsActive
                     .map((c, i) => ({...c, originalIndex: i}))
                     .filter(c => !masteredIndices.has(c.originalIndex));
 
@@ -1069,8 +1152,10 @@
             }
         });
 
-        // Initialize
-        shuffleCards();
+        // Initialize - try to load saved progress, otherwise start fresh
+        if (!loadProgress()) {
+            shuffleCards();
+        }
     </script>
 </body>
 </html>
